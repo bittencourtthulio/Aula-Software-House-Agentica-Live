@@ -7,7 +7,7 @@ import { lerProgresso, blocoProgresso, marcadorUpdate } from "./progresso.mjs";
 export function montarAtribuicao({ repo, issue, requestId, resultPath, pedido }) {
   return { assignees: ["copilot-swe-agent[bot]"], agent_assignment: {
     target_repo: repo, base_branch: "main", custom_agent: "coordenador",
-    custom_instructions: `Issue #${issue}.\n${pedido}\nrequestId: ${requestId}\nresultPath: ${resultPath}\nLeia docs/automacao-atendimento/COMUNICACAO.md. A cada marco, preserve na descrição da PR um bloco native-agents-progress completo, com issueNumber: ${issue} e requestId recebido. Use report_progress durante o trabalho, sem esperar o resultado final.`,
+    custom_instructions: `Issue #${issue}.\n${pedido}\nrequestId: ${requestId}\nresultPath: ${resultPath}\nLeia AGENTS.md e docs/Knowledge/README.md. Inclua artigos e índice na MESMA PR da implementação e peça revisão conjunta. Não abra outra issue ou PR para curadoria. Leia docs/automacao-atendimento/COMUNICACAO.md. A cada marco, preserve na descrição da PR um bloco native-agents-progress completo, com issueNumber: ${issue} e requestId recebido. Use report_progress durante o trabalho, sem esperar o resultado final.`,
   } };
 }
 

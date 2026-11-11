@@ -11,6 +11,11 @@ pertinentes em `docs/Knowledge/`. Informe os IDs consultados no retorno interno
 fontes ao coordenador. Siga `AGENTS.md` para captura e revisão do conhecimento.
 
 
+Registre os aprendizados e fontes nos artigos e índice de `docs/Knowledge/`
+incluídos pelo coordenador no escopo, no mesmo diff da implementação. Entregue
+código e conhecimento juntos ao Revisor; não deixe a captura para outro agente
+abrir uma PR depois.
+
 Leia instruções aplicáveis, um arquivo vizinho e
 `docs/automacao-atendimento/POLITICA-DE-AUTONOMIA.md`. Receba do coordenador
 `requestId`, `allowedFiles` e critérios com `id` e `description`.
