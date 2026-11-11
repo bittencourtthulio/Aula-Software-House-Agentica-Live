@@ -22,6 +22,8 @@ export async function analisarAtendimento(contexto, env = process.env, executarC
   const contrato = `Modo triagem anterior à atribuição. Não implemente, não grave resultPath,
     não use report_progress e não publique nada. Responda SOMENTE JSON, sem cercas:
     {"requestId":"${contexto.requestId}","outcome":"answer|clarification|code","publicText":"texto do N1","evidence":["arquivo e evidência"]}.
+    Inclua orientação reutilizável em publicText e fontes específicas em evidence; o controlador
+    registra o aprendizado na própria issue antes de fechar, sem PR de curadoria.
     answer SOMENTE para dúvida de uso do sistema comprovada em PRODUTO.md e no código atual.
     Bugs, funcionalidades, mudanças e dúvidas comerciais seguem como code para os especialistas.
     Se faltar informação essencial, use clarification e faça uma pergunta objetiva.
@@ -61,9 +63,20 @@ export async function publicarAtendimento(api, issue, r, comentarios) {
     if (comentarios.some((c) => botWorkflow(c) && c.body?.startsWith(marcadorUpdate(r.requestId, id)))) return;
     const progresso = blocoProgresso({ requestId: r.requestId, issueNumber: issue.number,
       updates: [{ id, agent: "n1", internalText: `N1 e coordenador: ${r.outcome}. ${r.evidence.join("; ")}`.slice(0, 5000), publicText: r.publicText }] });
+    // Conhecimento capturado na própria resolução, antes do fechamento. O
+    // contrato do chat continua expondo somente publicText, sem fontes internas.
+    const conhecimento = r.outcome === "answer" ? [
+      "### Conhecimento do atendimento",
+      `Fonte: issue #${issue.number}; requestId: ${r.requestId}.`,
+      "Estado consultado: atendimento aberto, com orientação conferida por N1 e coordenador.",
+      "#### Solução e decisão", r.publicText,
+      "#### Evidências e validação", ...r.evidence.map(e => `- ${e}`),
+      "#### Limites e prevenção",
+      "Orientação baseada nas fontes consultadas; não comprova alteração de código, teste executado ou atualização do app local.",
+    ].join("\n\n") : "";
     // Texto visível para quem lê a issue e contrato para o chat do ticket.
     await api(`/issues/${issue.number}/comments`, { method: "POST", body: { body:
-      `${marcadorUpdate(r.requestId, id)}\n${r.outcome === "answer" ? final + "\n" : ""}\n${r.publicText}\n\n${progresso}` } });
+      `${marcadorUpdate(r.requestId, id)}\n${r.outcome === "answer" ? final + "\n" : ""}\n${r.publicText}\n\n${conhecimento}\n\n${progresso}` } });
   }
   if (r.outcome === "answer" && issue.state !== "closed") {
     await api(`/issues/${issue.number}`, { method: "PATCH", body: { state: "closed", state_reason: "completed" } });

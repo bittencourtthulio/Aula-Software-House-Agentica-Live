@@ -56,6 +56,9 @@ test("dúvida de uso: resposta visível → fechamento, sem atribuir Copilot ou 
     assert.equal(c.issue.state, "closed");
     assert.equal(c.comentarios.length, 1);
     assert.ok(c.comentarios[0].body.includes(resultado.publicText));
+    assert.match(c.comentarios[0].body, /### Conhecimento do atendimento/);
+    assert.ok(c.comentarios[0].body.includes(resultado.evidence[0]));
+    assert.match(c.comentarios[0].body, /não comprova alteração de código/);
     const progresso = lerProgresso(c.comentarios[0].body);
     assert.equal(progresso.updates[0].publicText, resultado.publicText);
     assert.deepEqual(c.chamadas.filter((c) => c.method !== "GET").map((c) => [c.method, c.path]),
@@ -95,6 +98,7 @@ test("esclarecimento mantém aberto, bots não repetem pergunta e resposta human
   await cenario(async (c) => {
     await c.rodar(undefined, { ...resultado, outcome: "clarification", publicText: "Em qual tela você está?" });
     assert.equal(c.issue.state, "open");
+    assert.ok(!c.comentarios[0].body.includes("### Conhecimento do atendimento"));
     await c.rodar({ issue: c.issue, comment: { user: bot } });
     assert.equal(c.analises, 1); assert.equal(c.comentarios.length, 1);
     c.comentarios.push({ id: 22, user: { login: "cliente", type: "User" }, body: "Na página inicial" });

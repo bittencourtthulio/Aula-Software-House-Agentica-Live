@@ -94,7 +94,11 @@ Consulte o log do workflow e reexecute manualmente após corrigir o bloqueio.
 Em `answer`, o workflow publica a orientação legível e o bloco de progresso
 na própria issue e somente depois encerra como concluída. A resposta é importada
 pelo chat usando o mesmo contrato e ID `resposta-final`. Não grava resultado
-no repositório, não faz commit, não exige revisão de código/build/merge. Em
+no repositório, não faz commit, não exige revisão de código/build/merge.
+No mesmo comentário, publica o conhecimento do atendimento: fonte/requestId,
+orientação conferida, evidências e limites. Esse registro é parte da resolução,
+não gera issue/PR posterior e não é importado no texto público do ticket.
+A incorporação em docs/Knowledge pode ocorrer no próximo trabalho pertinente. Em
 `clarification`, publica a pergunta, mantém aberto e analisa a resposta humana
 na mesma issue. Comentários de bots não iniciam nova triagem. IDs estáveis e
 uma fila única evitam duplicação; agendamento e execução manual retomam apenas

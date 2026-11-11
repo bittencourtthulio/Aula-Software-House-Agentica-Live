@@ -24,7 +24,7 @@ YAML válido. Campos obrigatórios: `id`, `title`, `type`, `status`, `source`,
 `paths`, `related`. `related` contém IDs de artigos, sem extensão.
 
 Estados de PR: `proposta` (aberta), `integrado` (merge confirmado), `descartado`
-(fechada sem merge). Estados de issue: `resolvido` (evidência da solução) ou
+(fechada sem merge). Estados de issue: `em-atendimento` (ainda aberta), `resolvido` (evidência da solução) ou
 `encerrado-sem-solucao` (fechamento sem solução demonstrada). Fechar uma issue
 não prova correção. Artigos de issue resumem a demanda e apontam para a solução
 da PR, evitando cópia de todo o conteúdo. Reabertura de PR retorna a proposta.
@@ -47,32 +47,35 @@ Cada especialista devolve aprendizado e fontes; o desenvolvedor/coordenador
 mantém os artigos e o índice. N1 e comercial consultam sem editar. O revisor
 confere a evidência, o estado real da entrega e a utilidade para futuras tarefas.
 
-O workflow [knowledge.yml](../../.github/workflows/knowledge.yml) roda ao criar,
-editar, atualizar, reabrir ou fechar PR, encerrar issue, por hora e manualmente.
-Ele consulta todas as páginas de PRs e issues, compara revisões com os artigos
-em `main` e abre uma issue interna por fonte/revisão ausente. O agente
-`conhecimento` recebe essa tarefa, pesquisa a fonte e abre uma PR apenas em
-`docs/Knowledge/**`. A incorporação continua sujeita à revisão; não há merge
-automático. Enquanto a PR de conhecimento estiver pendente, o artigo em `main`
-pode estar desatualizado: consulte a fonte quando isso afetar sua decisão.
+A captura acontece durante a tarefa original: implementação, resposta e artigos
+seguem na mesma branch/PR, com revisão conjunta antes da entrega. Não abra uma
+issue ou segunda PR de curadoria. Dúvidas sem código mantêm a triagem de leitura: N1 devolve orientação e fontes,
+coordenador confere e controlador publica o aprendizado estruturado junto da
+resposta na issue, antes de fechar, sem PR. Esse registro guarda orientação,
+evidências e limites e fica ligado à fonte/requestId. A versão em Markdown pode
+entrar no próximo trabalho pertinente; não abra uma tarefa só para transcrevê-la.
 
-Issues internas têm o marcador `knowledge:task`, não recebem `origin:app` e
-não viram artigos. PRs que só alteram `docs/Knowledge/**` também são excluídas,
-evitando ciclos de conhecimento sobre conhecimento. Falhas de atribuição
-deixam a tarefa aberta para nova tentativa; tarefa fechada sem artigo é
-reaberta na reconciliação. Mudança da fonte pode criar uma tarefa de revisão
-nova; o curador deve conferir a revisão atual antes de publicar.
+Registre a issue ainda aberta como `em-atendimento`, e a PR aberta como
+`proposta`. Só atualize para `resolvido`/`integrado` depois de confirmação real.
+O artigo guarda o snapshot consultado: um commit que adiciona o artigo muda o
+head da PR, e edição da descrição também pode mudar `source_revision`. Não
+persiga igualdade do hash com novos commits em ciclo. Registre a revisão
+consultada e os limites; hash divergente não prova ausência de curadoria.
+Atualizações após encerrar a entrega entram no próximo trabalho pertinente,
+sem disparar uma entrega separada. Consulte a fonte atual para decidir o estado.
 
-Requer o secret existente `COPILOT_AGENT_TOKEN` com acesso para atribuir ao
-Copilot e o agente habilitado no repositório. `GITHUB_TOKEN` lê fontes e cria
-issues internas. Sem credenciais, o workflow falha explicitamente antes de
-criar tarefas. Para executar: `GITHUB_REPOSITORY=owner/repo node automacao/conhecimento.mjs`,
-com os tokens fornecidos pelo ambiente, sem gravá-los nos arquivos.
-O workflow deve estar em `main` para ativar agendamento/eventos de issues.
-Na PR de introdução, se o script ainda não existir em `main`, a reconciliação
-é adiada com aviso. Outros eventos falham se o script estiver ausente. O checkout
-continua restrito a `main`, sem executar código da PR com credenciais.
-Os testes e o build da PR são executados pelo job `validar` de Native agents.
+O workflow [knowledge.yml](../../.github/workflows/knowledge.yml) é uma auditoria
+manual somente de leitura. Lista artigos ausentes e snapshots divergentes nos
+logs; não cria tarefas, comentários, atribuições ou PRs e não exige token do
+Copilot. Usa `GITHUB_TOKEN` com leitura de conteúdo, PRs e issues. Para executar:
+`GITHUB_REPOSITORY=owner/repo node automacao/conhecimento.mjs`, com token no
+ambiente. Não grave credenciais nos arquivos.
+
+PRs que só alteram `docs/Knowledge/**` e issues internas antigas com marcador
+ou label `knowledge:task` são excluídas da auditoria. O agente `conhecimento`
+pode ajudar na tarefa original quando invocado pelo coordenador; não mantém
+uma fila autônoma nem abre entregas próprias. Workflows já em execução e PRs
+antigas de curadoria não são cancelados por esta alteração.
 
 ## Índice
 

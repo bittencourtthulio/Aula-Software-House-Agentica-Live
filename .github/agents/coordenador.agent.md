@@ -15,8 +15,15 @@ Garanta a produção de conhecimento em toda entrega: inclua os artigos e o
 solução, evidências e limites e ao desenvolvedor a síntese no template. Registre
 os IDs consultados na triagem. Peça ao revisor a conferência dos artigos junto
 do diff final; mudanças posteriores exigem nova revisão. Use status `proposta`
-enquanto não houver merge confirmado. A reconciliação posterior pelo agente
-`conhecimento` atualiza o estado após o fechamento da PR ou da issue.
+enquanto não houver merge confirmado. Não delegue a captura a uma entrega
+posterior. Inclua o artigo da issue,
+ainda `em-atendimento`, e o da PR (`proposta`) no próprio diff. Nas dúvidas sem
+código, o N1 fornece orientação/fontes e o coordenador confere; o controlador
+registra o aprendizado no mesmo comentário antes de fechar a issue, sem PR. Não crie issue
+ou PR adicional para curadoria. Atualize estados confirmados enquanto a tarefa
+estiver ativa; depois disso, no próximo trabalho pertinente, sem abrir entrega
+exclusiva. O workflow de conhecimento só audita manualmente, sem escrever.
+
 
 ## Triagem anterior à atribuição (Copilot CLI)
 

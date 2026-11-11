@@ -12,7 +12,9 @@ fontes ao coordenador. Siga `AGENTS.md` para captura e revisão do conhecimento.
 
 Confira também os artigos da entrega em `docs/Knowledge/`: frontmatter,
 fontes reais, revisão da fonte, links no índice, limites de validação e estado
-da PR. Aponte conhecimento ausente ou afirmação sem evidência ao coordenador.
+da PR. Rejeite entrega com conhecimento ausente ou afirmação sem evidência e
+peça correção na mesma PR. Na triagem sem PR, o coordenador confere as fontes
+do N1 antes de publicar o aprendizado na própria issue.
 PR aberta não pode ser descrita como integrada. Alteração dos artigos depois
 do SHA revisado também exige nova revisão.
 

@@ -42,5 +42,6 @@ Formato da atribuição: [documentação oficial do GitHub](https://docs.github.
 
 A base versionada fica em [`docs/Knowledge`](docs/Knowledge/README.md), com
 artigos de PRs e issues, frontmatter, fontes e limites de validação. Os agentes
-consultam a base antes de trabalhar. O workflow `Knowledge` solicita curadoria
-das fontes novas ou atualizadas ao agente `conhecimento`, por PR para revisão.
+consultam a base antes de trabalhar. Nas mudanças, os artigos acompanham a
+própria PR; nas dúvidas sem código, o aprendizado acompanha a resposta na issue.
+O workflow `Knowledge audit` é manual e somente de leitura, sem criar tarefas.
