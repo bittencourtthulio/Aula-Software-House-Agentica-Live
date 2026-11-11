@@ -17,6 +17,7 @@ export function Cartao({
   return (
     <article
       className="cartao"
+      title={cartao.title}
       draggable
       data-arrastando={arrastando ? "" : undefined}
       data-alvo={apontado ? "" : undefined}
