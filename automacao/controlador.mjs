@@ -1,17 +1,17 @@
 import { readFileSync } from "node:fs";
 import { randomUUID } from "node:crypto";
 import { pathToFileURL } from "node:url";
-import { analisarAtendimento, validarAtendimento, publicarAtendimento, retomarAtendimento } from "./atendimento.mjs";
+import { acolherAtendimento, analisarAtendimento, validarAtendimento, publicarAtendimento, retomarAtendimento } from "./atendimento.mjs";
 import { lerProgresso, blocoProgresso, marcadorUpdate } from "./progresso.mjs";
 
 export function montarAtribuicao({ repo, issue, requestId, resultPath, pedido }) {
   return { assignees: ["copilot-swe-agent[bot]"], agent_assignment: {
     target_repo: repo, base_branch: "main", custom_agent: "coordenador",
-    custom_instructions: `Issue #${issue}.\n${pedido}\nrequestId: ${requestId}\nresultPath: ${resultPath}\nLeia AGENTS.md e docs/Knowledge/README.md. Inclua artigos e índice na MESMA PR da implementação e peça revisão conjunta. Não abra outra issue ou PR para curadoria. Leia docs/automacao-atendimento/COMUNICACAO.md. A cada marco, preserve na descrição da PR um bloco native-agents-progress completo, com issueNumber: ${issue} e requestId recebido. Use report_progress durante o trabalho, sem esperar o resultado final.`,
+    custom_instructions: `Issue #${issue}.\n${pedido}\nrequestId: ${requestId}\nresultPath: ${resultPath}\nLeia AGENTS.md e docs/Knowledge/README.md. Inclua artigos e índice na MESMA PR da implementação e peça revisão conjunta. Não abra outra issue ou PR para curadoria. Leia docs/automacao-atendimento/COMUNICACAO.md. Sua primeira ação é invocar N1 para comunicar entendimento e próximo encaminhamento; publique esse marco via report_progress antes de delegar ao PO, banco, desenvolvimento ou outros especialistas. Não espere análise técnica ou implementação. A cada marco, preserve na descrição da PR um bloco native-agents-progress completo, com issueNumber: ${issue} e requestId recebido. Use report_progress durante o trabalho, sem esperar o resultado final.`,
   } };
 }
 
-export async function executar(env = process.env, rede = fetch, analisar = analisarAtendimento) {
+export async function executar(env = process.env, rede = fetch, analisar = analisarAtendimento, acolher = acolherAtendimento) {
   const evento = env.GITHUB_EVENT_PATH ? JSON.parse(readFileSync(env.GITHUB_EVENT_PATH, "utf8")) : {};
   const repo = env.GITHUB_REPOSITORY;
   if (!/^[\w.-]+\/[\w.-]+$/.test(repo ?? "")) throw new Error("Informe GITHUB_REPOSITORY.");
@@ -55,7 +55,7 @@ export async function executar(env = process.env, rede = fetch, analisar = anali
   if (dryRun) {
     if (evento.issue && !evento.issue.labels?.some((l) => (l.name ?? l) === "origin:app")) return;
     const requestId = evento.issue?.body?.match(/requestId:\s*([0-9a-f-]{36})/i)?.[1] ?? randomUUID();
-    console.log(JSON.stringify({ dryRun: true, issue: numero, firstStep: "N1 e coordenador analisam antes de atribuir; somente code usa o payload abaixo", payload: montarAtribuicao({ repo,
+    console.log(JSON.stringify({ dryRun: true, issue: numero, firstStep: "N1 confirma recebimento antes da análise; N1 e coordenador fazem triagem e somente code usa o payload abaixo", payload: montarAtribuicao({ repo,
       issue: numero, requestId, resultPath: `automacao/resultados/${requestId}.json`,
       pedido: evento.issue?.body ?? "Reler a issue e os comentários antes de agir." }) }, null, 2));
     return;
@@ -86,6 +86,16 @@ export async function executar(env = process.env, rede = fetch, analisar = anali
   // Eventos de PR/comentários de bots nunca iniciam outra atribuição.
   if (evento.pull_request || evento.comment?.user?.type === "Bot") return;
   const requestId = issue.body?.match(/requestId:\s*([0-9a-f-]{36})/i)?.[1] ?? randomUUID();
+  const recebimento = marcadorUpdate(requestId, "recebimento");
+  if (!comentarios.some((c) => c.user?.login === "github-actions[bot]" && c.user?.type === "Bot" && c.body?.startsWith(recebimento))) {
+    const r = validarAtendimento(await acolher({ issue, requestId }, env), requestId);
+    if (!r || r.outcome !== "code" || !r.publicText) throw new Error("Acolhimento inválido; análise não iniciada.");
+    const criado = await api(`/issues/${numero}/comments`, { method: "POST", body: { body:
+      `${recebimento}\n${r.publicText}\n\n${blocoProgresso({ requestId, issueNumber: numero, updates: [{
+        id: "recebimento", agent: "n1", internalText: "N1 confirmou recebimento; análise técnica ainda não iniciada.", publicText: r.publicText,
+      }] })}` } });
+    comentarios.push(criado);
+  }
   // Bots e reações a comentários não reiniciam a triagem. Uma resposta humana
   // a clarification é analisada com todo o histórico, na mesma issue.
   const resultado = validarAtendimento(await analisar({ issue, comentarios, requestId }, env), requestId);
