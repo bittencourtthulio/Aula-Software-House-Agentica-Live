@@ -129,6 +129,12 @@
       "agent": "coordenador",
       "internalText": "CodeQL foi executado após commit das alterações de código e retornou zero alertas em Actions e JavaScript. Não consegui atualizar o título/corpo do PR: a API GitHub disponível é somente leitura e o navegador falhou com ERR_CERT_AUTHORITY_INVALID. O PR permanece com metadados antigos; sem merge e issue #3 aberta.",
       "publicText": ""
+    },
+    {
+      "id": "metadados-pr-atualizados-17",
+      "agent": "coordenador",
+      "internalText": "Após sincronização do progresso, a API do GitHub confirmou que o PR #4 agora tem título sem bloqueio, descrição que refere à issue #3 sem verbo de fechamento, um único bloco native-agents-progress, estado open e merged=false. A descrição remota ainda contém 15 updates; este marco registra a atualização após aquela leitura. Issue segue aberta e nenhum merge foi feito.",
+      "publicText": ""
     }
   ]
 }
