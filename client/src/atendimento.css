@@ -3,7 +3,8 @@
 .atendimento-lista-topo { display: grid; gap: var(--e4); }
 .atendimento h1 { font-size: var(--titulo-2); color: var(--noite); letter-spacing: -.02em; text-wrap: balance; }
 .atendimento-local, .atendimento-lista-vazia { color: var(--secundario); font-size: var(--meta); margin-top: var(--e4); text-wrap: pretty; }
-.atendimento-lista { display: grid; gap: var(--e1); margin-top: var(--e6); }
+.atendimento-lista { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--e1); margin-top: var(--e6); }
+.atendimento-lista li { min-width: 0; }
 .atendimento-ticket { display: flex; gap: var(--e2); align-items: flex-start; width: 100%; min-height: 64px; padding: var(--e3); border: 1px solid transparent; border-radius: var(--r2); background: transparent; text-align: left; cursor: pointer; transition: background-color 180ms ease-out, border-color 180ms ease-out; }
 .atendimento-ticket:hover { background: var(--superficie); }
 .atendimento-ticket[aria-current] { background: var(--superficie); border-color: var(--borda-forte); color: var(--oceano); }
@@ -35,7 +36,7 @@
   .atendimento-tickets { border-right: 0; border-bottom: 1px solid var(--borda); }
   .atendimento-lista-topo { display: flex; align-items: center; justify-content: space-between; gap: var(--e2); }
   .atendimento-lista { display: flex; overflow-x: auto; margin-top: var(--e3); padding-bottom: var(--e1); }
-  .atendimento-lista li { flex: 0 0 200px; min-width: 0; }
+  .atendimento-lista li { flex: 0 0 200px; }
   .atendimento-conversa { min-height: 65dvh; }
   .atendimento-historico { max-height: 60dvh; padding: var(--e4); }
   .atendimento-compositor { padding: var(--e4); }
