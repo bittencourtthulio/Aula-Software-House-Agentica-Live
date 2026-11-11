@@ -15,7 +15,14 @@ Os agentes reportam marcos ao coordenador durante o trabalho. O coordenador
 registra as etapas na issue e encaminha ao N1 as que forem úteis ao cliente.
 O workflow reconcilia o bloco de progresso da PR nos eventos, manualmente e
 a cada cinco minutos. O backend importa os textos públicos para o ticket;
-a tela consulta novas mensagens a cada dez segundos, sem duplicar avisos.
+a tela consulta novas mensagens a cada cinco segundos enquanto está visível,
+ao retomar a aba e pelo botão Atualizar, sem duplicar avisos. O botão consulta
+a issue imediatamente, ignorando o cache curto do servidor. Falhas na consulta
+ao GitHub aparecem no chat, mantendo o histórico e novas tentativas automáticas.
+A abertura do ticket registra somente a mensagem do cliente: respostas do N1
+dependem dos textos públicos produzidos pela automação, sem confirmação pronta
+atribuída ao agente. Os avisos precisam estar publicados na issue para aparecer
+no chat; atrasos na publicação pelo workflow continuam sujeitos ao GitHub.
 Detalhes internos ficam na issue. Falhas de rede preservam o histórico local.
 Contrato e configuração: [Comunicação durante o trabalho](docs/automacao-atendimento/COMUNICACAO.md).
 Formato da atribuição: [documentação oficial do GitHub](https://docs.github.com/en/copilot/how-tos/use-copilot-agents/cloud-agent/use-cloud-agent-via-the-api).

@@ -17,6 +17,8 @@
 .atendimento-cabecalho > div { min-width: 0; }
 .atendimento-sobrancelha { display: block; margin-bottom: var(--e1); }
 .atendimento-total { flex-shrink: 0; }
+.atendimento-atualizacao { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: var(--e2); }
+.atendimento-atualizacao > span:last-child { flex-basis: 100%; text-align: right; }
 .atendimento-cabecalho h2 { font-size: var(--titulo-3); overflow-wrap: anywhere; text-wrap: balance; }
 .atendimento-cabecalho span { color: var(--secundario); font-size: var(--meta); font-variant-numeric: tabular-nums; }
 .atendimento-historico { flex: 1; min-height: 0; overflow-y: auto; padding: var(--e8) var(--e6); scrollbar-gutter: stable; }
@@ -63,6 +65,8 @@
 }
 @media (max-width: 480px) {
   .atendimento-cabecalho { align-items: flex-start; flex-direction: column; gap: var(--e1); padding: var(--e4); }
+  .atendimento-atualizacao { justify-content: flex-start; }
+  .atendimento-atualizacao > span:last-child { text-align: left; }
   .atendimento-mensagem { max-width: 94%; }
   .atendimento-mensagem-meta { gap: 6px; }
   .atendimento-papel { display: none; }

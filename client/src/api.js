@@ -25,7 +25,7 @@ const corpo = (dados) => Object.fromEntries(Object.entries(dados).filter(([, v])
 
 export const listarTickets = () => pedir("GET", "/tickets");
 export const abrirTicket = (titulo, descricao) => pedir("POST", "/tickets", { titulo, descricao });
-export const lerTicket = (id) => pedir("GET", `/tickets/${encodeURIComponent(id)}`);
+export const lerTicket = (id, atualizar = false) => pedir("GET", `/tickets/${encodeURIComponent(id)}${atualizar ? "?atualizar=1" : ""}`);
 export const enviarMensagem = (id, texto) => pedir("POST", `/tickets/${encodeURIComponent(id)}/mensagens`, { texto });
 
 export const api = {

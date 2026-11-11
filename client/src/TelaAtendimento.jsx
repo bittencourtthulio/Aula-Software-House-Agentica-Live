@@ -5,6 +5,7 @@ import { Dialogo } from "./componentes/Dialogo.jsx";
 import { Icone } from "./componentes/Icone.jsx";
 import { abrirTicket as apiAbrirTicket, enviarMensagem, lerTicket, listarTickets } from "./api.js";
 import "./atendimento.css";
+import { acompanharTicket } from "./acompanhar-ticket.js";
 
 const data = (valor) => new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "short" }).format(new Date(valor));
 const rotuloAutor = (autor) => (autor === "n1" ? "N1" : "Você");
@@ -23,6 +24,9 @@ export function TelaAtendimento() {
   const [errosTicket, setErrosTicket] = useState({});
   const [anuncio, setAnuncio] = useState("");
   const [enviando, setEnviando] = useState(false);
+  const [atualizando, setAtualizando] = useState(false);
+  const [avisoSincronizacao, setAvisoSincronizacao] = useState("");
+  const acompanhamento = useRef(null);
   const fim = useRef(null);
   const compositor = useRef(null);
   const ticket = detalhe && detalhe.id === selecionado ? detalhe : null;
@@ -47,20 +51,25 @@ export function TelaAtendimento() {
 
   useEffect(() => {
     if (!selecionado) { setDetalhe(null); return undefined; }
-    let ativo = true;
-    const recarregar = async () => {
-      try {
-        const lido = await lerTicket(selecionado);
-        if (!ativo) return;
-        setDetalhe(lido);
+    setAvisoSincronizacao("");
+    const controle = acompanharTicket({
+      ler: (forcar) => lerTicket(selecionado, forcar),
+      aoCarregar: setAtualizando,
+      aoLer: (lido) => {
+        // Um envio local pode terminar enquanto a leitura ainda está em trânsito.
+        setDetalhe((atual) => {
+          const ids = new Set(lido.mensagens.map((m) => m.id));
+          const locais = atual?.id === lido.id ? atual.mensagens.filter((m) => !ids.has(m.id)) : [];
+          return { ...lido, mensagens: [...lido.mensagens, ...locais]
+            .sort((a, b) => Date.parse(a.criadoEm) - Date.parse(b.criadoEm)) };
+        });
         setErro("");
-      } catch (e) {
-        if (ativo) setErro(e.message || "Não foi possível carregar as mensagens.");
-      }
-    };
-    recarregar();
-    const intervalo = setInterval(recarregar, 10000);
-    return () => { ativo = false; clearInterval(intervalo); };
+        setAvisoSincronizacao(lido.erroSincronizacao || "");
+      },
+      aoErro: (e) => setAvisoSincronizacao(e.message || "Não foi possível atualizar as mensagens. Tentaremos novamente automaticamente."),
+    });
+    acompanhamento.current = controle;
+    return () => { controle.parar(); acompanhamento.current = null; };
   }, [selecionado]);
 
   useEffect(() => {
@@ -163,11 +172,18 @@ export function TelaAtendimento() {
         </ul> : <p className="atendimento-lista-vazia">Abra seu primeiro ticket</p>}
       </aside>
       <div className="atendimento-conversa">
-        {erro && !novo && <p className="atendimento-erro" role="alert">{erro} <Botao onClick={() => { setErro(""); if (selecionado) lerTicket(selecionado).then(setDetalhe).catch((e) => setErro(e.message)); }}>Tentar de novo</Botao></p>}
+        {erro && !novo && <p className="atendimento-erro" role="alert">{erro}</p>}
+        {avisoSincronizacao && <p className="atendimento-erro" role="status">{avisoSincronizacao} <Botao disabled={atualizando} onClick={() => acompanhamento.current?.atualizar()}>Tentar de novo</Botao></p>}
         {ticket ? <>
           <header className="atendimento-cabecalho">
             <div><span className="atendimento-sobrancelha">Conversa com o N1</span><h2>{ticket.titulo}</h2></div>
-            <span className="atendimento-total">{mensagens.length} {mensagens.length === 1 ? "mensagem" : "mensagens"}</span>
+            <div className="atendimento-atualizacao">
+              <span className="atendimento-total">{mensagens.length} {mensagens.length === 1 ? "mensagem" : "mensagens"}</span>
+              <Botao icone="atualizar" disabled={atualizando} onClick={() => acompanhamento.current?.atualizar()}>
+                {atualizando ? "Atualizando…" : "Atualizar"}
+              </Botao>
+              <span>Atualização automática a cada 5 s</span>
+            </div>
           </header>
           <div className="atendimento-historico" role="region" aria-label={`Histórico: ${ticket.titulo}`} tabIndex={0}>
             {mensagens.length ? <ol className="atendimento-mensagens">

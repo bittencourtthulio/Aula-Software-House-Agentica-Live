@@ -76,15 +76,14 @@ export function rotasDeTickets(app, db, { env = process.env, rede = fetch } = {}
       db.prepare("INSERT INTO ticket (id, dono, titulo, descricao, request_id, fase, criado_em) VALUES (?, ?, ?, ?, ?, ?, ?)")
         .run(id, estado.dono, titulo, descricao, randomUUID(), "em_analise", new Date().toISOString());
       adicionar(id, "cliente", descricao);
-      adicionar(id, "n1", "Recebemos seu ticket e já estamos analisando.");
     });
     await criarIssue(db, buscar(id, estado.dono), env, rede);
     return { ...sair(buscar(id, estado.dono)), mensagens: mensagens(id) };
   });
-  app.get("/api/tickets/:id", dono, async ({ params, estado }) => {
+  app.get("/api/tickets/:id", dono, async ({ params, estado, url }) => {
     const ticket = buscar(params.id, estado.dono);
-    await sincronizar(ticket);
-    return { ...sair(ticket), mensagens: mensagens(params.id) };
+    const erroSincronizacao = await sincronizar(ticket, { forcar: url?.searchParams.get("atualizar") === "1" });
+    return { ...sair(ticket), mensagens: mensagens(params.id), ...(erroSincronizacao ? { erroSincronizacao } : {}) };
   });
   app.post("/api/tickets/:id/mensagens", dono, ({ params, corpo, estado }) => {
     buscar(params.id, estado.dono);

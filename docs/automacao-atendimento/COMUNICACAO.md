@@ -57,12 +57,17 @@ PR do Copilot podem exigir aprovação humana. A reconciliação periódica cobr
 PRs abertas e depende do workflow já instalado na branch padrão.
 
 O backend consulta os comentários da issue ao abrir/reler o ticket, no máximo
-uma vez a cada dez segundos por ticket. Só aceita comentários do bot do
+uma vez a cada cinco segundos por ticket. O botão Atualizar ignora esse cache,
+reutilizando uma consulta já em andamento. Só aceita comentários do bot do
 workflow com contrato válido, mesma issue e `requestId`. Salva exclusivamente
 `publicText` como mensagem N1, usando `externo_id` para impedir duplicação até
 após reinício. O conteúdo interno não é retornado pela API de tickets.
 Falha no GitHub preserva as mensagens locais e permite tentar novamente.
-A tela existente relê o ticket a cada dez segundos enquanto ele está aberto.
+A tela relê o ticket a cada cinco segundos enquanto está visível e ao retomar
+a aba, sem consultas sobrepostas. Ao trocar de ticket ou sair da tela, o
+acompanhamento é encerrado. Falhas de consulta são exibidas sem apagar o histórico.
+Abrir um ticket não cria resposta pronta do N1: somente a mensagem do cliente
+é gravada, e as respostas públicas chegam pela automação.
 
 São necessários `AGENT_RUNTIME=github-native`, `AGENT_DRY_RUN=false`,
 `GITHUB_REPOSITORY` e `GITHUB_TOKEN` no app; no workflow, os tokens já descritos
