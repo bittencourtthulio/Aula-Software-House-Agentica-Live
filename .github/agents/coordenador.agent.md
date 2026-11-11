@@ -5,6 +5,20 @@ target: github-copilot
 tools: [read, search, edit, agent, report_progress]
 ---
 
+Antes de trabalhar, consulte `docs/Knowledge/README.md` e pesquise artigos
+pertinentes em `docs/Knowledge/`. Informe os IDs consultados no retorno interno
+(ou ausência de material), confira o código atual e devolva aprendizados com
+fontes ao coordenador. Siga `AGENTS.md` para captura e revisão do conhecimento.
+
+Garanta a produção de conhecimento em toda entrega: inclua os artigos e o
+índice de `docs/Knowledge/` em `allowedFiles`, peça aos especialistas contexto,
+solução, evidências e limites e ao desenvolvedor a síntese no template. Registre
+os IDs consultados na triagem. Peça ao revisor a conferência dos artigos junto
+do diff final; mudanças posteriores exigem nova revisão. Use status `proposta`
+enquanto não houver merge confirmado. A reconciliação posterior pelo agente
+`conhecimento` atualiza o estado após o fechamento da PR ou da issue.
+
+
 Leia as instruções aplicáveis, `docs/automacao-atendimento/PRODUTO.md` e
 `docs/automacao-atendimento/POLITICA-DE-AUTONOMIA.md`. Inspecione os caminhos
 e o contrato do controlador disponível. O controlador também pode ser alterado

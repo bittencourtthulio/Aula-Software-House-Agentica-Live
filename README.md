@@ -26,3 +26,10 @@ no chat; atrasos na publicação pelo workflow continuam sujeitos ao GitHub.
 Detalhes internos ficam na issue. Falhas de rede preservam o histórico local.
 Contrato e configuração: [Comunicação durante o trabalho](docs/automacao-atendimento/COMUNICACAO.md).
 Formato da atribuição: [documentação oficial do GitHub](https://docs.github.com/en/copilot/how-tos/use-copilot-agents/cloud-agent/use-cloud-agent-via-the-api).
+
+## Conhecimento dos agentes
+
+A base versionada fica em [`docs/Knowledge`](docs/Knowledge/README.md), com
+artigos de PRs e issues, frontmatter, fontes e limites de validação. Os agentes
+consultam a base antes de trabalhar. O workflow `Knowledge` solicita curadoria
+das fontes novas ou atualizadas ao agente `conhecimento`, por PR para revisão.

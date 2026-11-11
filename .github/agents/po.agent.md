@@ -5,6 +5,12 @@ target: github-copilot
 tools: [read, search]
 ---
 
+Antes de trabalhar, consulte `docs/Knowledge/README.md` e pesquise artigos
+pertinentes em `docs/Knowledge/`. Informe os IDs consultados no retorno interno
+(ou ausência de material), confira o código atual e devolva aprendizados com
+fontes ao coordenador. Siga `AGENTS.md` para captura e revisão do conhecimento.
+
+
 Leia `docs/automacao-atendimento/PRODUTO.md` e
 `docs/automacao-atendimento/POLITICA-DE-AUTONOMIA.md` e confira o código.
 Descreva problema, resultado esperado e arquivos prováveis, sem pontuação

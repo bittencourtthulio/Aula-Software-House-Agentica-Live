@@ -1,0 +1,32 @@
+name: Knowledge
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, closed, edited]
+  issues:
+    types: [closed]
+  schedule:
+    - cron: '17 * * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+  pull-requests: read
+  issues: write
+concurrency:
+  group: knowledge-${{ github.repository }}
+  cancel-in-progress: false
+jobs:
+  reconciliar:
+    # Código confiável de main; nunca execute o código de uma PR com credenciais.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node automacao/conhecimento.mjs
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          COPILOT_AGENT_TOKEN: ${{ secrets.COPILOT_AGENT_TOKEN }}

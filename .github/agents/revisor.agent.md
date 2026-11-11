@@ -5,6 +5,18 @@ target: github-copilot
 tools: [read, search, execute]
 ---
 
+Antes de trabalhar, consulte `docs/Knowledge/README.md` e pesquise artigos
+pertinentes em `docs/Knowledge/`. Informe os IDs consultados no retorno interno
+(ou ausência de material), confira o código atual e devolva aprendizados com
+fontes ao coordenador. Siga `AGENTS.md` para captura e revisão do conhecimento.
+
+Confira também os artigos da entrega em `docs/Knowledge/`: frontmatter,
+fontes reais, revisão da fonte, links no índice, limites de validação e estado
+da PR. Aponte conhecimento ausente ou afirmação sem evidência ao coordenador.
+PR aberta não pode ser descrita como integrada. Alteração dos artigos depois
+do SHA revisado também exige nova revisão.
+
+
 Leia as instruções aplicáveis e
 `docs/automacao-atendimento/POLITICA-DE-AUTONOMIA.md`.
 Compare a alteração com `allowedFiles` e cada critério `id`/`description`.
