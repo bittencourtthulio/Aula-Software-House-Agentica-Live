@@ -67,6 +67,13 @@ export function TelaAtendimento() {
     fim.current?.scrollIntoView({ block: "nearest" });
   }, [selecionado, mensagens.length]);
 
+  useEffect(() => {
+    const campo = compositor.current;
+    if (!campo) return;
+    campo.style.height = "auto";
+    campo.style.height = `${Math.min(campo.scrollHeight, 220)}px`;
+  }, [texto, ticket?.id]);
+
   async function abrirTicket(e) {
     e.preventDefault();
     const formulario = e.currentTarget;
@@ -102,7 +109,7 @@ export function TelaAtendimento() {
 
   async function enviar(e) {
     e.preventDefault();
-    if (!ticket) return;
+    if (!ticket || enviando) return;
     if (!texto.trim()) { setValidacao("Escreva uma mensagem antes de enviar."); return; }
     setEnviando(true);
     try {
@@ -158,23 +165,43 @@ export function TelaAtendimento() {
       <div className="atendimento-conversa">
         {erro && !novo && <p className="atendimento-erro" role="alert">{erro} <Botao onClick={() => { setErro(""); if (selecionado) lerTicket(selecionado).then(setDetalhe).catch((e) => setErro(e.message)); }}>Tentar de novo</Botao></p>}
         {ticket ? <>
-          <header className="atendimento-cabecalho"><h2>{ticket.titulo}</h2><span>{mensagens.length} {mensagens.length === 1 ? "mensagem" : "mensagens"}</span></header>
+          <header className="atendimento-cabecalho">
+            <div><span className="atendimento-sobrancelha">Conversa com o N1</span><h2>{ticket.titulo}</h2></div>
+            <span className="atendimento-total">{mensagens.length} {mensagens.length === 1 ? "mensagem" : "mensagens"}</span>
+          </header>
           <div className="atendimento-historico" role="region" aria-label={`Histórico: ${ticket.titulo}`} tabIndex={0}>
             {mensagens.length ? <ol className="atendimento-mensagens">
-              {mensagens.map((m) => <li key={m.id} className="atendimento-mensagem">
-                <div><strong>{rotuloAutor(m.autor)}</strong><time dateTime={new Date(m.criadoEm).toISOString()}>{data(m.criadoEm)}</time></div>
+              {mensagens.map((m) => <li key={m.id} className={`atendimento-mensagem atendimento-mensagem--${m.autor === "n1" ? "n1" : "cliente"}`}>
+                <div className="atendimento-mensagem-meta">
+                  <strong className="atendimento-autor"><Icone nome={m.autor === "n1" ? "assistente" : "usuario"} tamanho={14} />{rotuloAutor(m.autor)}</strong>
+                  {m.autor === "n1" && <span className="atendimento-papel">Assistente</span>}
+                  <time dateTime={new Date(m.criadoEm).toISOString()}>{data(m.criadoEm)}</time>
+                </div>
                 <p>{m.texto}</p>
               </li>)}
             </ol> : <div className="vazio-canvas"><Icone nome="conversa" tamanho={32} /><h2>Conte o que você precisa</h2><p>Descreva sua solicitação na primeira mensagem. O histórico fica reunido neste ticket.</p></div>}
             <div ref={fim} />
           </div>
           <form className="atendimento-compositor" onSubmit={enviar}>
-            <label htmlFor="mensagem-ticket">Mensagem</label>
-            <textarea id="mensagem-ticket" ref={compositor} className="campo-entrada" rows={3} maxLength={5000} value={texto}
-              placeholder="Escreva sua mensagem…" aria-invalid={Boolean(validacao)} aria-describedby={validacao ? "atendimento-validacao" : "atendimento-ajuda"}
-              onChange={(e) => { setRascunhos((anteriores) => ({ ...anteriores, [selecionado]: e.target.value })); setValidacao(""); }} />
+            <label className="atendimento-sr" htmlFor="mensagem-ticket">Mensagem</label>
+            <div className="atendimento-caixa" data-invalido={validacao ? "true" : undefined}>
+              <textarea id="mensagem-ticket" ref={compositor} rows={1} maxLength={5000} value={texto}
+                placeholder="Mensagem para o N1…" aria-invalid={Boolean(validacao)} aria-describedby={validacao ? "atendimento-validacao atendimento-ajuda" : "atendimento-ajuda"}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing && e.nativeEvent.keyCode !== 229) {
+                    e.preventDefault();
+                    e.currentTarget.form.requestSubmit();
+                  }
+                }}
+                onChange={(e) => { setRascunhos((anteriores) => ({ ...anteriores, [selecionado]: e.target.value })); setValidacao(""); }} />
+              <div className="atendimento-envio">
+                <span className="atendimento-destino"><Icone nome="assistente" tamanho={16} />N1 <span>· Assistente</span></span>
+                <Botao type="submit" variante="primario" className="atendimento-enviar" icone={enviando ? "atualizar" : "seta-cima"}
+                  aria-label={enviando ? "Enviando mensagem" : "Enviar mensagem"} title="Enviar mensagem" disabled={enviando || !texto.trim()} />
+              </div>
+            </div>
             {validacao && <p className="campo-erro" id="atendimento-validacao" role="alert">{validacao}</p>}
-            <div className="atendimento-envio"><small id="atendimento-ajuda">Até 5.000 caracteres.</small><Botao type="submit" variante="primario" icone="mover" disabled={enviando}>Enviar mensagem</Botao></div>
+            <p className="atendimento-ajuda" id="atendimento-ajuda">Enter para enviar · Shift+Enter para nova linha · Até 5.000 caracteres.</p>
           </form>
         </> : selecionado ? <p className="atendimento-lista-vazia" role="status">Carregando mensagens…</p>
           : <div className="vazio-canvas"><Icone nome="conversa" tamanho={40} /><h2>Como podemos ajudar?</h2><p>Abra um ticket para registrar sua solicitação e acompanhar as mensagens em uma conversa.</p><Botao variante="primario" icone="mais" onClick={abrirNovo}>Novo ticket</Botao></div>}

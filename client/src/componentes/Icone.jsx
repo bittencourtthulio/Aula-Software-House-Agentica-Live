@@ -4,6 +4,9 @@
  * Botão só com ícone precisa de `aria-label` — o svg em si é decorativo.
  */
 const DESENHOS = {
+  "seta-cima": <><path d="M12 19V5" /><path d="m5 12 7-7 7 7" /></>,
+  usuario: <><circle cx="12" cy="8" r="4" /><path d="M4 21v-2a8 8 0 0 1 16 0v2" /></>,
+  assistente: <><rect x="4" y="6" width="16" height="15" rx="4" /><path d="M12 3v3M8 12h.01M16 12h.01M9 17h6" /></>,
   conversa: <path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5H4l-2 2V11.5A8.5 8.5 0 0 1 10.5 3h2a8.5 8.5 0 0 1 8.5 8.5Z" />,
   colunas: (
     <>
