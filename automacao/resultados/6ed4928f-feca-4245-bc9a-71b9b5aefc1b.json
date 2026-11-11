@@ -1,7 +1,7 @@
 {
   "requestId": "6ed4928f-feca-4245-bc9a-71b9b5aefc1b",
   "outcome": "code",
-  "publicText": "A revisão estática não identificou problemas no código. O contador ao lado do título foi implementado com agregação, estados para zero, singular e plural, e ajuste responsivo. Foram adicionados testes focados, mas eles não foram executados. A validação final segue pendente: não foi possível confirmar a revisão de origem do artigo da PR, e não houve execução de testes ou build.",
+  "publicText": "A revisão estática final não identificou defeitos no código, e o relatório JSON já existe. Testes e build não foram executados. O bloqueio de acesso aos metadados públicos impediu verificar de forma independente a revisão-fonte do artigo e as evidências exatas de progresso e agentes. Isso não representa aprovação formal nem conclusão.",
   "agents": [
     "coordenador",
     "po",
@@ -66,6 +66,12 @@
       "agent": "revisor",
       "internalText": "Revisão estática final: agregação, zero/singular/plural e responsividade sem defeito bloqueador identificado. Artigos têm estrutura/índice e status adequados, mas pr-70.source_revision permanece null; o revisor não confirmou independentemente hashes. O teste cobre helper e fixtures, sem teste de renderização ou validação visual. Testes/lint/build não executados; Vite indisponível durante tentativa do revisor. O revisor bloqueia aprovação formal por falta do relatório do controlador e ressalva de validação incompleta.",
       "publicText": "A revisão estática não identificou problemas no código. O contador ao lado do título foi implementado com agregação, estados para zero, singular e plural, e ajuste responsivo. Foram adicionados testes focados, mas eles não foram executados. A validação final segue pendente: não foi possível confirmar a revisão de origem do artigo da PR, e não houve execução de testes ou build."
+    },
+    {
+      "id": "revisao-final-impedimentos",
+      "agent": "n1",
+      "internalText": "N1 redigiu atualização pública após a revisão final: revisão estática sem defeito aparente; relatório JSON criado; testes/build não executados; metadados da PR e evidências externas de progresso/agentes não confirmados devido ao bloqueio público. Não há aprovação formal.",
+      "publicText": "A revisão estática final não identificou defeitos no código, e o relatório JSON já existe. Testes e build não foram executados. O bloqueio de acesso aos metadados públicos impediu verificar de forma independente a revisão-fonte do artigo e as evidências exatas de progresso e agentes. Isso não representa aprovação formal nem conclusão."
     }
   ]
 }
