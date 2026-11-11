@@ -5,7 +5,9 @@ on:
   issue_comment:
     types: [created]
   pull_request:
-    types: [opened, synchronize, ready_for_review, closed]
+    types: [opened, edited, synchronize, ready_for_review, closed]
+  schedule:
+    - cron: "*/5 * * * *"
   workflow_dispatch:
     inputs:
       issue_number:
@@ -17,7 +19,7 @@ permissions:
   issues: write
   pull-requests: read
 concurrency:
-  group: native-agents-${{ github.repository }}-${{ github.event.issue.number || inputs.issue_number || 'pr-reconcile' }}
+  group: native-agents-${{ github.repository }}-${{ github.event.issue.number || 'pr-reconcile' }}
   cancel-in-progress: false
 jobs:
   coordenar:

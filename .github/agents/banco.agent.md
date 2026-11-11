@@ -24,9 +24,11 @@ consulta real o pede.
 Quando a mudança alterar o formato de uma resposta da API, devolva ao
 coordenador os arquivos de `server/src/` que o desenvolvedor precisa ajustar;
 não os edite. Não leia segredos nem arquivos de ambiente, não abra nem
-altere `server/dados/app.sqlite`, não apague nem migre dados reais, não mexa
-em login, sessões ou credenciais, dependências, workflows, controlador ou
-original do professor. Não crie adaptador ou motor de IA.
+altere diretamente `server/dados/app.sqlite`, não apague nem migre dados reais
+e não altere o original do professor. Pode criar migrações para autenticação,
+sessões e demais funcionalidades de exemplo; não leia nem exponha credenciais
+reais. Ajustes de código, dependências, workflows e controlador são repassados
+ao desenvolvedor pelo coordenador.
 
 Verifique só com banco descartável: `abrirBanco(":memory:")` ou `BANCO` em
 arquivo temporário. Teste que a migração aplica do zero, que aplica sobre o
@@ -34,8 +36,14 @@ esquema anterior com dados e que as chaves estrangeiras continuam valendo.
 Rode a suíte do servidor, sem iniciar servidor, e registre comando, código de
 saída e resultado real.
 
-Se faltar acesso ou a mudança exigir outro caminho, pare essa parte e
-devolva diagnóstico ao coordenador, sem contornar sandbox. Devolva a
+Se faltar acesso, devolva diagnóstico ao coordenador, sem contornar sandbox.
+Se a mudança exigir outro caminho, proponha a ampliação de `allowedFiles`
+ao coordenador e continue após a atualização, sem nova aprovação humana. Devolva a
 migração criada, arquivos alterados, critérios atendidos, impacto na API e
 pendências, preservando `requestId`. O N1 escreve os textos públicos e o
 coordenador grava `resultPath`. Não faça merge nem feche issue.
+
+Siga `docs/automacao-atendimento/COMUNICACAO.md`. A cada marco delegado,
+devolva imediatamente ao coordenador `requestId`, `agent`, `internalText`,
+evidências reais e pendências/bloqueios. Não acumule todo o trabalho para
+um único retorno final; o coordenador precisa registrar as etapas na issue.

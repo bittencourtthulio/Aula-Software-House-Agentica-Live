@@ -1,55 +1,66 @@
-# Política de autonomia
+# Política de autonomia — projeto de aula
 
-Esta política define o limite de um futuro agente de produto via GitHub
-Copilot (`.github/agents/*.agent.md`). Esses arquivos estão ausentes nesta
-cópia; a política, sozinha, não instala nem executa automação.
+Este repositório é um projeto de exemplo para uma aula, com dados de teste.
+A orientação do responsável é implementar os pedidos com autonomia ampla.
+Esta política orienta os agentes em `.github/agents/*.agent.md` e substitui
+a antiga limitação a pequenas mudanças em quatro arquivos do quadro.
 
-## O que pode fazer
+## O que pode fazer sem nova aprovação
 
-- Responder dúvidas de uso com base em `PRODUTO.md` e no código atual.
-- Pedir esclarecimentos quando o problema ou o resultado não estiver claro.
-- Fazer pequenas mudanças na interface do quadro: texto de orientação,
-  acessibilidade e correções locais de exibição ou movimentação de cartões,
-  preservando contratos da API e os recursos existentes.
+- Alterar o sistema, implementar funcionalidades e corrigir bugs.
+- Criar, alterar e reorganizar telas, rotas, navegação, cards, estilos e
+  componentes compartilhados em qualquer área, inclusive atendimento.
+- Alterar backend, endpoints, contratos da API, autenticação e sessões do
+  aplicativo de exemplo, ajustando os consumidores afetados.
+- Evoluir tabelas, colunas, relações e índices por migrações do SQLite,
+  usando o agente `banco` no fluxo coordenado.
+- Adicionar ou atualizar dependências, scripts, configurações, testes,
+  documentação, agentes, controlador e workflows necessários ao pedido.
+- Executar testes, build e servidores locais para verificar o resultado,
+  usando banco descartável e dados fictícios nas verificações.
 
-Um pedido de produto precisa somente de problema, resultado esperado e
-arquivos prováveis. Não exige nota, pontuação ou matriz de priorização.
-Exemplo: “O título do cartão é cortado; quero ler o título completo;
-arquivo provável: client/src/Cartao.jsx”.
+## Como definir e executar o escopo
 
-## Caminhos permitidos para mudanças
+Um pedido ou ticket de alteração no projeto já autoriza sua implementação.
+O PO descreve o problema, o resultado esperado, os arquivos necessários e
+critérios observáveis, sem nota, pontuação ou matriz de priorização.
+`allowedFiles` registra os arquivos escolhidos para aquele pedido, incluindo
+arquivos novos; não existe lista fechada de caminhos autorizados.
 
-Lista fechada, limitada ao quadro de tarefas:
+Se a implementação precisar de outros arquivos ou de uma mudança maior,
+o coordenador atualiza `allowedFiles`, os critérios e a distribuição do
+trabalho e continua. Não encaminhe ao responsável nem recuse uma mudança
+apenas por envolver outra tela, CSS, componente compartilhado, backend,
+banco, dependência ou configuração. Use os padrões existentes e tome
+decisões técnicas razoáveis; pergunte somente quando faltar informação
+essencial que o código e o contexto não permitam inferir.
 
-- `client/src/TelaQuadro.jsx`: tela e interações do quadro.
-- `client/src/Lista.jsx`: listas e criação de cartões.
-- `client/src/Cartao.jsx`: exibição e ações do cartão.
-- `client/src/ordem.js`: ordenação de cartões na interface.
+Exemplo: um pedido para mudar a tela de cards pode alterar `Cartao.jsx`,
+`TelaQuadro.jsx`, estilos, componentes compartilhados, API e testes,
+conforme necessário para entregar o comportamento solicitado.
 
-Estar na lista não autoriza uma mudança ampla. Se a correção exigir outro
-arquivo ou mudar comportamento fora do quadro, encaminhe ao responsável
-com o problema, o resultado esperado e os arquivos prováveis. Não execute
-a parte que ultrapassa esse limite.
+Valide o que mudou e registre os comandos e resultados reais. Mudanças nos
+contratos da API devem atualizar os consumidores; mudanças de banco usam
+migrações incrementais e verificações em banco descartável. Preserve a
+arquitetura React/Vite, Node e SQLite, salvo pedido explícito de troca.
 
-## O que não pode fazer
+## Limites que continuam valendo
 
-Não alterar login, sessões, credenciais, banco, atendimento, infraestrutura
-ou dependências. Não ler segredos nem arquivos de ambiente. Não apagar ou
-migrar dados reais, nem executar exclusões em nome de quem usa o produto.
-Não publicar, fazer deploy ou mudar permissões e workflows.
+- A autonomia vale para esta cópia de aula. Não altere o original do
+  professor, outros projetos, serviços de produção ou dados reais.
+- Não leia nem exponha segredos ou arquivos de ambiente. A aplicação e os
+  workflows podem consumir credenciais já configuradas pelos mecanismos
+  existentes, sem imprimi-las nem gravá-las no repositório.
+- Não apague o banco local existente nem dados do usuário para testar.
+  A evolução de esquema ocorre por migrações; testes usam dados descartáveis.
+- Não faça compras, contrate serviços, publique, faça deploy, altere
+  permissões externas, faça merge ou feche issues sem autorização explícita
+  para essas ações. A PR pode ser criada e fica aberta para revisão.
+- Respeite as permissões e o sandbox do ambiente; esta política não os altera.
 
-Em particular, ficam fora da lista `server/`, `scripts/`, `.github/`,
-`package.json`, arquivos de ambiente e bancos SQLite. Também ficam fora
-`client/src/TelaAtendimento.jsx`, `client/src/atendimento.css`,
-`client/src/App.jsx`, `client/src/BarraLateral.jsx`, `client/src/api.js`,
-`client/src/main.jsx`, `client/src/estilos.css`, a página inicial e os
-componentes compartilhados em `client/src/componentes/`: podem afetar
-áreas além do quadro.
-
-Não inventar recursos, preços ou prazos. Para dúvidas comerciais, consultar
-`automacao/commercial-catalog.json`; se faltar informação, usar a pergunta
-registrada e encaminhar ao responsável. O produto é 100% gratuito.
-
-Preservar React/Node/SQLite local e a integração prevista com GitHub
-Copilot. Não criar motor próprio de IA nem resposta automática no
-atendimento como parte de uma mudança de produto.
+Responda dúvidas com base em `PRODUTO.md` e no código atual. Não invente
+ações concluídas, recursos já disponíveis, preços ou prazos. Para dúvidas
+comerciais, consulte `automacao/commercial-catalog.json`; se faltar uma
+condição comercial, encaminhe a pergunta ao responsável. O produto é
+100% gratuito. Preserve a integração com os agentes reais do GitHub Copilot;
+não a substitua por invocações simuladas ou respostas que aleguem execução.

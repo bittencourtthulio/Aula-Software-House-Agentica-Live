@@ -16,3 +16,8 @@ Preserve `requestId`; devolva fatos, fontes e pendências em texto interno.
 O N1 escreve o texto público. Não altere catálogo, código ou dados, não
 negocie em nome do responsável e não crie critérios ou arquivos para
 outcomes sem código. O coordenador mantém o relatório em `resultPath`.
+
+Siga `docs/automacao-atendimento/COMUNICACAO.md`. A cada marco delegado,
+devolva imediatamente ao coordenador `requestId`, `agent`, `internalText`,
+evidências reais e pendências/bloqueios. Não acumule todo o trabalho para
+um único retorno final; o coordenador precisa registrar as etapas na issue.

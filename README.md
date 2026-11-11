@@ -11,5 +11,11 @@ Configure os tokens pelo ambiente/Secrets, sem gravá-los no repositório.
 O cookie HttpOnly `fluxo_dono` restringe tickets ao navegador que os criou.
 Falhas de criação preservam o ticket como `issue_pendente`; uma nova tentativa deve reler seu requestId.
 O controlador atribui a mesma issue ao agente `coordenador`, com base em `main`.
-Reconciliação das respostas N1 permanece como TODO no controlador.
+Os agentes reportam marcos ao coordenador durante o trabalho. O coordenador
+registra as etapas na issue e encaminha ao N1 as que forem úteis ao cliente.
+O workflow reconcilia o bloco de progresso da PR nos eventos, manualmente e
+a cada cinco minutos. O backend importa os textos públicos para o ticket;
+a tela consulta novas mensagens a cada dez segundos, sem duplicar avisos.
+Detalhes internos ficam na issue. Falhas de rede preservam o histórico local.
+Contrato e configuração: [Comunicação durante o trabalho](docs/automacao-atendimento/COMUNICACAO.md).
 Formato da atribuição: [documentação oficial do GitHub](https://docs.github.com/en/copilot/how-tos/use-copilot-agents/cloud-agent/use-cloud-agent-via-the-api).

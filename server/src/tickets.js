@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { naoEncontrado, texto } from "./http.js";
 import { transacao } from "./db.js";
+import { criarSincronizador } from "./progresso-tickets.js";
 
 const sair = (t) => ({ id: t.id, titulo: t.titulo, descricao: t.descricao,
   status: t.fase, issueNumber: t.issue_number, criadoEm: t.criado_em });
@@ -42,7 +43,8 @@ export async function criarIssue(db, ticket, env = process.env, rede = fetch) {
   }
 }
 
-export function rotasDeTickets(app, db) {
+export function rotasDeTickets(app, db, { env = process.env, rede = fetch } = {}) {
+  const sincronizar = criarSincronizador(db, env, rede);
   const dono = ({ req, res, estado }) => {
     const cookie = (req.headers.cookie ?? "").split(";").map((c) => c.trim())
       .find((c) => c.startsWith("fluxo_dono="))?.slice(11);
@@ -76,12 +78,14 @@ export function rotasDeTickets(app, db) {
       adicionar(id, "cliente", descricao);
       adicionar(id, "n1", "Recebemos seu ticket e já estamos analisando.");
     });
-    await criarIssue(db, buscar(id, estado.dono));
+    await criarIssue(db, buscar(id, estado.dono), env, rede);
     return { ...sair(buscar(id, estado.dono)), mensagens: mensagens(id) };
   });
-  app.get("/api/tickets/:id", dono, ({ params, estado }) => ({
-    ...sair(buscar(params.id, estado.dono)), mensagens: mensagens(params.id),
-  }));
+  app.get("/api/tickets/:id", dono, async ({ params, estado }) => {
+    const ticket = buscar(params.id, estado.dono);
+    await sincronizar(ticket);
+    return { ...sair(ticket), mensagens: mensagens(params.id) };
+  });
   app.post("/api/tickets/:id/mensagens", dono, ({ params, corpo, estado }) => {
     buscar(params.id, estado.dono);
     return adicionar(params.id, "cliente", texto(corpo, "texto", { max: 5000 }));
