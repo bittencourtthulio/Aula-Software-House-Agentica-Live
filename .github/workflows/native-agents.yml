@@ -54,7 +54,7 @@ jobs:
       - run: node automacao/controlador.mjs
         env:
           GITHUB_TOKEN: ${{ github.token }}
-          COPILOT_CLI_TOKEN: ${{ secrets.COPILOT_CLI_TOKEN }}
+          COPILOT_CLI_TOKEN: ${{ secrets.COPILOT_CLI_TOKEN || secrets.COPILOT_AGENT_TOKEN }}
           COPILOT_AGENT_TOKEN: ${{ secrets.COPILOT_AGENT_TOKEN }}
           AGENT_DRY_RUN: ${{ vars.AGENT_DRY_RUN || 'true' }}
           ISSUE_NUMBER: ${{ inputs.issue_number }}

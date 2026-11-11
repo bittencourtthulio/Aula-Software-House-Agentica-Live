@@ -101,12 +101,18 @@ uma fila única evitam duplicação; agendamento e execução manual retomam ape
 o fechamento caso a publicação já tenha ocorrido. O agendamento não repete
 chamadas de IA de casos bloqueados. Issues já atribuídas seguem o fluxo antigo.
 
-No Actions, configure `COPILOT_CLI_TOKEN` com token aceito pelo Copilot CLI
-(PAT fino com Copilot Requests de leitura ou OAuth compatível) e uma licença
-Copilot ativa. O token `COPILOT_AGENT_TOKEN` de atribuição continua separado;
-um PAT clássico não autentica o CLI. O workflow instala `@github/copilot`.
-Não há alteração de secrets, licenças ou permissões externas nesta correção.
-A ausência do token bloqueia a triagem em vez de criar uma PR para a dúvida.
+No Actions, `COPILOT_CLI_TOKEN` é opcional: quando ausente, o workflow
+reutiliza o secret existente `COPILOT_AGENT_TOKEN`. Ele precisa ser aceito pelo
+Copilot CLI (PAT fino com Copilot Requests de leitura ou OAuth compatível) e
+ter licença Copilot ativa; um PAT clássico não autentica o CLI. Para aproveitar
+um PAT fino já configurado, abra sua edição no GitHub, selecione Account →
+Add permissions → Copilot Requests (Read-only) e confirme Update. A alteração
+de escopo não exige regenerar o token nem atualizar o valor salvo no secret.
+Conserve as permissões de repositório necessárias para a atribuição existente.
+O CLI continua com ferramentas somente de leitura, mesmo quando usa a mesma
+credencial da atribuição. Use um token separado em `COPILOT_CLI_TOKEN` se quiser
+isolar credenciais. O workflow instala `@github/copilot`. Ausência ou erro de
+autenticação bloqueiam a triagem em vez de criar uma PR para a dúvida.
 `AGENT_DRY_RUN=true` continua sem rede nem invocação de agentes.
 
 Referências: [CLI no Actions](https://docs.github.com/en/copilot/how-tos/copilot-cli/automate-copilot-cli/automate-with-actions),
