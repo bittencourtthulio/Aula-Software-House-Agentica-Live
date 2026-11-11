@@ -3,6 +3,7 @@ import { Botao } from "./componentes/Botao.jsx";
 import { Campo } from "./componentes/Campo.jsx";
 import { Icone } from "./componentes/Icone.jsx";
 import { Lista } from "./Lista.jsx";
+import { contarCartoes, formatarContagemCartoes } from "./contagem-cartoes.js";
 import { posicaoDeDestino } from "./ordem.js";
 
 /** Quadro aberto: título, listas em linha horizontal e o arrastar nativo entre elas. */
@@ -48,7 +49,10 @@ export function TelaQuadro({
   return (
     <>
       <header className="quadro-topo">
-        <h1 className="quadro-titulo">{board.title}</h1>
+        <div className="quadro-identificacao">
+          <h1 className="quadro-titulo">{board.title}</h1>
+          <p className="quadro-contagem">{formatarContagemCartoes(contarCartoes(listas))}</p>
+        </div>
         <div className="quadro-acoes">
           <Botao variante="fantasma" icone="lapis" aria-label="Renomear quadro" onClick={aoRenomearQuadro} />
           <Botao variante="fantasma" icone="lixeira" aria-label="Excluir quadro" onClick={aoExcluirQuadro} />

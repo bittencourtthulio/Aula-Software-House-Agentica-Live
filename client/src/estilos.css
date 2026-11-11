@@ -128,7 +128,16 @@ svg { flex: none; }
   display: flex; align-items: center; justify-content: space-between; gap: var(--e4);
   padding: var(--e6) var(--e8) var(--e4);
 }
-.quadro-titulo { font-size: var(--titulo-1); line-height: 1.2; letter-spacing: -0.02em; color: var(--noite); text-wrap: balance; }
+.quadro-identificacao {
+  flex: 1; min-width: 0;
+  display: flex; align-items: baseline; flex-wrap: wrap; gap: var(--e2);
+}
+.quadro-titulo {
+  min-width: 0;
+  font-size: var(--titulo-1); line-height: 1.2; letter-spacing: -0.02em; color: var(--noite); text-wrap: balance;
+  overflow-wrap: anywhere;
+}
+.quadro-contagem { min-width: 0; font-size: var(--meta); color: var(--secundario); overflow-wrap: anywhere; }
 .quadro-acoes { display: flex; gap: var(--e1); }
 
 .listas {

@@ -95,6 +95,8 @@ Resultados de teste citados nos artigos são históricos, não reexecuções des
 | [issue-5](issue-5.md) | Leitura de título longo do cartão | quadro, tooltip |
 | [issue-7](issue-7.md) | Cards ultrapassando a sidebar | atendimento, CSS |
 | [issue-9](issue-9.md) | Como criar novos quadros | N1, uso |
+| [issue-69](issue-69.md) | Exibir total de cartões no quadro | quadro, cartões, contagem |
+| [pr-70](pr-70.md) | Exibir a contagem de cartões junto ao nome do quadro | quadro, cartões, contagem |
 | [pr-14](pr-14.md) | Primeira execução da curadoria antes da integração em main | conhecimento, workflow |
 | [pr-71](pr-71.md) | N1 confirma recebimento antes da análise e atribuição ao Copilot | N1, atendimento, acolhimento |
 | [issue-72](issue-72.md) | Triagem de dúvida bloqueada por saída do CLI e encaminhamento antes de PR | triagem, N1, PO, JSON |
