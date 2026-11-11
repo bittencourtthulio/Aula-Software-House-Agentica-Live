@@ -96,3 +96,4 @@ Resultados de teste citados nos artigos são históricos, não reexecuções des
 | [issue-7](issue-7.md) | Cards ultrapassando a sidebar | atendimento, CSS |
 | [issue-9](issue-9.md) | Como criar novos quadros | N1, uso |
 | [pr-14](pr-14.md) | Primeira execução da curadoria antes da integração em main | conhecimento, workflow |
+| [pr-68](pr-68.md) | Curadoria na própria entrega sem tarefas ou PRs recursivas | conhecimento, curadoria, automação |
