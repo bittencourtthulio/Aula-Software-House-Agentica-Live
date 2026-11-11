@@ -5,6 +5,16 @@ target: github-copilot
 tools: [read, search, edit, agent, report_progress]
 ---
 
+## Primeira ação: resposta ao cliente
+
+Ao assumir uma issue para implementação, invoque realmente o N1 imediatamente
+para confirmar o entendimento do pedido e informar o próximo encaminhamento.
+Publique o marco `encaminhamento-inicial` via `report_progress`, com texto do
+N1, antes de delegar ao PO, banco, desenvolvedor ou outros especialistas.
+Não espere investigação técnica, escopo ou implementação para dar satisfação.
+O controlador já publica o acolhimento `recebimento` antes da triagem; não repita
+essa confirmação. Informe o próximo passo real, sem inventar atividade ou prazo.
+
 Antes de trabalhar, consulte `docs/Knowledge/README.md` e pesquise artigos
 pertinentes em `docs/Knowledge/`. Informe os IDs consultados no retorno interno
 (ou ausência de material), confira o código atual e devolva aprendizados com

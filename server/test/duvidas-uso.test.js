@@ -4,12 +4,13 @@ import { mkdtempSync, writeFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { executar } from "../../automacao/controlador.mjs";
-import { analisarAtendimento } from "../../automacao/atendimento.mjs";
+import { acolherAtendimento, analisarAtendimento } from "../../automacao/atendimento.mjs";
 import { lerProgresso } from "../../automacao/progresso.mjs";
 import { criarSincronizador } from "../src/progresso-tickets.js";
 import { abrirBanco } from "../src/db.js";
 
 const requestId = "11111111-1111-4111-8111-111111111111";
+const acolhimento = { requestId, outcome: "code", publicText: "Recebi seu pedido sobre criar quadros e estou encaminhando ao coordenador para análise. Voltarei com um retorno.", evidence: ["issue #9: pedido recebido"] };
 const bot = { login: "github-actions[bot]", type: "Bot" };
 const resultado = { requestId, outcome: "answer", publicText: "Na lateral, clique em Criar quadro e informe o título.",
   evidence: ["client/src/BarraLateral.jsx: botão Criar quadro"] };
@@ -43,7 +44,7 @@ async function cenario(fn) {
   };
   const rodar = async (evento = { issue }, r = resultado) => {
     const path = join(pasta, "evento.json"); writeFileSync(path, JSON.stringify(evento));
-    await executar({ ...env, GITHUB_EVENT_PATH: path }, rede, async () => { analises++; return r; });
+    await executar({ ...env, GITHUB_EVENT_PATH: path }, rede, async () => { assert.ok(comentarios.some(c => c.body.includes('id=recebimento'))); analises++; return r; }, async () => acolhimento);
   };
   try { await fn({ issue, comentarios, chamadas, rodar, env, get analises() { return analises; },
     falharPost(v) { falhaPost = v; }, falharPatch(v) { falhaPatch = v; } }); }
@@ -54,17 +55,17 @@ test("dúvida de uso: resposta visível → fechamento, sem atribuir Copilot ou 
   await cenario(async (c) => {
     await c.rodar();
     assert.equal(c.issue.state, "closed");
-    assert.equal(c.comentarios.length, 1);
-    assert.ok(c.comentarios[0].body.includes(resultado.publicText));
-    assert.match(c.comentarios[0].body, /### Conhecimento do atendimento/);
-    assert.ok(c.comentarios[0].body.includes(resultado.evidence[0]));
-    assert.match(c.comentarios[0].body, /não comprova alteração de código/);
-    const progresso = lerProgresso(c.comentarios[0].body);
+    assert.equal(c.comentarios.length, 2);
+    assert.ok(c.comentarios[1].body.includes(resultado.publicText));
+    assert.match(c.comentarios[1].body, /### Conhecimento do atendimento/);
+    assert.ok(c.comentarios[1].body.includes(resultado.evidence[0]));
+    assert.match(c.comentarios[1].body, /não comprova alteração de código/);
+    const progresso = lerProgresso(c.comentarios[1].body);
     assert.equal(progresso.updates[0].publicText, resultado.publicText);
     assert.deepEqual(c.chamadas.filter((c) => c.method !== "GET").map((c) => [c.method, c.path]),
-      [["POST", "/issues/9/comments"], ["PATCH", "/issues/9"]]);
+      [["POST", "/issues/9/comments"], ["POST", "/issues/9/comments"], ["PATCH", "/issues/9"]]);
     await c.rodar();
-    assert.equal(c.analises, 1); assert.equal(c.comentarios.length, 1);
+    assert.equal(c.analises, 1); assert.equal(c.comentarios.length, 2);
     const db = abrirBanco();
     try {
       db.prepare(`INSERT INTO ticket (id, dono, titulo, descricao, request_id, issue_number, fase, criado_em)
@@ -72,7 +73,7 @@ test("dúvida de uso: resposta visível → fechamento, sem atribuir Copilot ou 
       const ticket = db.prepare("SELECT * FROM ticket").get();
       const sync = criarSincronizador(db, { ...c.env, AGENT_RUNTIME: "github-native" }, async () => ({ ok: true, json: async () => c.comentarios }));
       await sync(ticket); await sync(ticket, { forcar: true });
-      assert.deepEqual(db.prepare("SELECT texto FROM mensagem").all().map((m) => m.texto), [resultado.publicText]);
+      assert.deepEqual(db.prepare("SELECT texto FROM mensagem").all().map((m) => m.texto), [acolhimento.publicText, resultado.publicText]);
     } finally { db.close(); }
   });
 });
@@ -82,15 +83,17 @@ test("falha de publicação não fecha; falha de fechamento retoma por agendamen
     c.falharPost(true);
     await assert.rejects(c.rodar, /503/);
     assert.equal(c.issue.state, "open");
+    assert.equal(c.analises, 0);
+    assert.ok(!c.chamadas.some(c => c.path.endsWith("/assignees")));
     assert.equal(c.chamadas.filter((c) => c.method === "PATCH").length, 0);
     c.falharPost(false); c.falharPatch(true);
     await assert.rejects(c.rodar, /503/);
-    assert.equal(c.comentarios.length, 1);
+    assert.equal(c.comentarios.length, 2);
     const analises = c.analises;
     c.falharPatch(false);
     await c.rodar({ schedule: "*/5 * * * *" });
     assert.equal(c.issue.state, "closed");
-    assert.equal(c.analises, analises); assert.equal(c.comentarios.length, 1);
+    assert.equal(c.analises, analises); assert.equal(c.comentarios.length, 2);
   });
 });
 
@@ -98,9 +101,9 @@ test("esclarecimento mantém aberto, bots não repetem pergunta e resposta human
   await cenario(async (c) => {
     await c.rodar(undefined, { ...resultado, outcome: "clarification", publicText: "Em qual tela você está?" });
     assert.equal(c.issue.state, "open");
-    assert.ok(!c.comentarios[0].body.includes("### Conhecimento do atendimento"));
+    assert.ok(!c.comentarios[1].body.includes("### Conhecimento do atendimento"));
     await c.rodar({ issue: c.issue, comment: { user: bot } });
-    assert.equal(c.analises, 1); assert.equal(c.comentarios.length, 1);
+    assert.equal(c.analises, 1); assert.equal(c.comentarios.length, 2);
     c.comentarios.push({ id: 22, user: { login: "cliente", type: "User" }, body: "Na página inicial" });
     await c.rodar({ issue: c.issue, comment: c.comentarios.at(-1) });
     assert.equal(c.issue.state, "closed"); assert.equal(c.analises, 2);
@@ -159,4 +162,29 @@ test("runtime chama N1 e coordenador reais com ferramentas somente de leitura e 
   let n = 0;
   await assert.rejects(() => analisarAtendimento(contexto, { COPILOT_CLI_TOKEN: "teste" }, async () => ({ stdout:
     JSON.stringify({ ...resultado, publicText: n++ ? "Texto alterado" : resultado.publicText }) })), /divergiram/);
+});
+
+
+test("acolhimento é publicado antes da análise e atribuição, sem repetir ao reexecutar", async () => {
+  await cenario(async c => {
+    await c.rodar(undefined, { ...resultado, outcome: "code", publicText: "" });
+    const mutacoes = c.chamadas.filter(c => c.method === "POST");
+    assert.match(mutacoes[0].body.body, /id=recebimento/);
+    assert.equal(lerProgresso(mutacoes[0].body.body).updates[0].publicText, acolhimento.publicText);
+    assert.equal(mutacoes[1].path, "/issues/9/assignees");
+    await c.rodar();
+    assert.equal(c.comentarios.filter(c => c.body.includes("id=recebimento")).length, 1);
+    assert.equal(c.analises, 1);
+  });
+});
+
+test("N1 redige acolhimento curto sem análise técnica; texto vazio bloqueia", async () => {
+  const contexto = { requestId, issue: { number: 9, title: "Criar quadro", body: "Pedido" } };
+  const cli = async (cmd, args) => {
+    assert.equal(args[1], "n1");
+    assert.match(args[3], /Não faça análise técnica nem consulte arquivos/);
+    return { stdout: JSON.stringify(acolhimento) };
+  };
+  assert.equal((await acolherAtendimento(contexto, { COPILOT_CLI_TOKEN: "teste" }, cli)).publicText, acolhimento.publicText);
+  await assert.rejects(() => acolherAtendimento(contexto, { COPILOT_CLI_TOKEN: "teste" }, async () => ({ stdout: JSON.stringify({ ...acolhimento, publicText: "" }) })), /Acolhimento inválido/);
 });

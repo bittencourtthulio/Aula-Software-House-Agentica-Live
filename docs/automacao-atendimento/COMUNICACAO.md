@@ -4,6 +4,23 @@ Cada especialista reporta ao coordenador, que decide o que deve chegar ao client
 O registro interno fica na issue original, ligado ao mesmo `requestId` do ticket.
 Não espere a implementação terminar para relatar progresso.
 
+## Resposta inicial obrigatória
+
+Antes de analisar arquivos ou atribuir a issue ao Copilot, o controlador chama
+N1 em modo de acolhimento curto: recebimento, resumo do assunto, encaminhamento
+ao coordenador e indicação de retorno, sem prazo prometido. Publica o texto
+real do N1 na issue com ID `recebimento` e bloco de progresso importável pelo
+chat. Só depois inicia a triagem de leitura. Falha de geração ou publicação
+interrompe o fluxo antes da análise/atribuição; reexecução preserva o aviso já
+publicado, validando autor do workflow e requestId. Não há resposta simulada no app.
+
+Ao assumir a implementação, a primeira ação do coordenador é invocar N1 e
+publicar `encaminhamento-inicial` via `report_progress`, explicando entendimento
+e próximo encaminhamento antes de delegar aos especialistas. Esse marco traz
+o próximo passo real e não repete o acolhimento. A consulta técnica da base e
+do código pertence à triagem seguinte ao acolhimento. A latência de início do
+Actions/Copilot e de sincronização do chat permanece; não há prazo garantido.
+
 ## Especialistas e coordenador
 
 O coordenador divide trabalhos longos em marcos curtos e observáveis. Antes de
