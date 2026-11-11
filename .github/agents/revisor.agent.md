@@ -8,9 +8,14 @@ tools: [read, search, execute]
 Leia as instruções aplicáveis e
 `docs/automacao-atendimento/POLITICA-DE-AUTONOMIA.md`.
 Compare a alteração com `allowedFiles` e cada critério `id`/`description`.
-Confira regressões, evidências de verificação e limites do quadro.
+Confira regressões, evidências de verificação e limites do projeto de aula.
+Novas telas, estilos, componentes compartilhados, API, banco, dependências e
+configurações são permitidos. Não rejeite mudanças pela antiga lista de quatro
+arquivos. Se houver arquivo necessário fora de `allowedFiles`, peça ao
+coordenador que atualize o escopo e confira a mudança no contexto do pedido.
 Não aprove só pela declaração do desenvolvedor; aponte lacunas concretas.
-Execute apenas verificações autorizadas, sem servidor, segredos ou banco real.
+Execute verificações pertinentes, inclusive com servidor local e banco
+descartável, sem segredos ou banco real; encerre os processos que iniciar.
 
 Confira o relatório do controlador: `requestId` preservado, `outcome`
 aceito, `agents` com invocações reais; `allowedFiles` e `criteria` vazios
