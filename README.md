@@ -14,9 +14,14 @@ Antes de atribuir, o controlador chama N1 e coordenador pelo Copilot CLI em
 modo de leitura. Dúvidas de uso resolvidas recebem resposta na issue e são
 encerradas sem PR; esclarecimentos mantêm a issue aberta. Pedidos de código
 seguem para atribuição ao `coordenador`, com base em `main`.
-No Actions, configure também `COPILOT_CLI_TOKEN` (Copilot Requests de leitura
-em PAT fino ou OAuth compatível e licença Copilot ativa). Sem ele, a triagem
-fica bloqueada e nenhuma PR é solicitada. Veja o contrato de comunicação.
+No Actions, o CLI reutiliza `COPILOT_AGENT_TOKEN` quando `COPILOT_CLI_TOKEN`
+não estiver definido. O token existente precisa ser um PAT fino ou OAuth
+compatível com Copilot Requests de leitura e licença Copilot ativa. No GitHub,
+abra o token em Settings → Developer settings → Fine-grained tokens → Edit,
+Account → Add permissions → Copilot Requests (Read-only) e salve em Update.
+Não é preciso regenerar o token nem copiar seu valor novamente. Um token
+separado em `COPILOT_CLI_TOKEN` continua opcional. Sem token compatível, a
+triagem fica bloqueada e nenhuma PR é solicitada. Veja o contrato de comunicação.
 Os agentes reportam marcos ao coordenador durante o trabalho. O coordenador
 registra as etapas na issue e encaminha ao N1 as que forem úteis ao cliente.
 O workflow reconcilia o bloco de progresso da PR nos eventos, manualmente e

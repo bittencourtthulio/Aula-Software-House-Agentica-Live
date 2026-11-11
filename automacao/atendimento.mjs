@@ -18,7 +18,7 @@ export function validarAtendimento(r, requestId) {
 // Duas invocações reais, em sequência. Sem shell, escrita, MCP ou atribuição
 // de issue: o controlador é o único componente que publica e fecha o caso.
 export async function analisarAtendimento(contexto, env = process.env, executarCli = executarArquivo) {
-  if (!env.COPILOT_CLI_TOKEN) throw new Error("Configure COPILOT_CLI_TOKEN com permissão Copilot Requests; nenhuma PR foi solicitada.");
+  if (!env.COPILOT_CLI_TOKEN) throw new Error("Configure um token compatível com Copilot Requests em COPILOT_AGENT_TOKEN ou COPILOT_CLI_TOKEN no workflow; nenhuma PR foi solicitada.");
   const contrato = `Modo triagem anterior à atribuição. Não implemente, não grave resultPath,
     não use report_progress e não publique nada. Responda SOMENTE JSON, sem cercas:
     {"requestId":"${contexto.requestId}","outcome":"answer|clarification|code","publicText":"texto do N1","evidence":["arquivo e evidência"]}.
