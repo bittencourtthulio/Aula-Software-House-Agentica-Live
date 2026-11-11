@@ -1,0 +1,27 @@
+{
+  "produto": "Fluxo",
+  "preco": {
+    "gratuito": true,
+    "descricao": "O produto é 100% gratuito.",
+    "fonte": "Confirmação do responsável nesta execução em 11/11/2026."
+  },
+  "recursos_confirmados": [
+    {
+      "descricao": "Criar, renomear e excluir quadros e listas.",
+      "fonte": "client/src/App.jsx"
+    },
+    {
+      "descricao": "Criar, editar, excluir e mover cartões com título e descrição.",
+      "fonte": "client/src/Cartao.jsx"
+    },
+    {
+      "descricao": "Registrar tickets e mensagens no navegador, sem respostas automáticas.",
+      "fonte": "client/src/TelaAtendimento.jsx"
+    }
+  ],
+  "perguntas_pendentes": [
+    "Existe limite de uso formalmente definido?",
+    "Há hospedagem pública disponível?",
+    "Existe prazo de resposta para suporte?"
+  ]
+}

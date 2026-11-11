@@ -23,6 +23,11 @@ async function pedir(metodo, caminho, corpo) {
 /** Remove campos vazios para não enviar `description: undefined` no corpo. */
 const corpo = (dados) => Object.fromEntries(Object.entries(dados).filter(([, v]) => v !== undefined && v !== null));
 
+export const listarTickets = () => pedir("GET", "/tickets");
+export const abrirTicket = (titulo, descricao) => pedir("POST", "/tickets", { titulo, descricao });
+export const lerTicket = (id) => pedir("GET", `/tickets/${encodeURIComponent(id)}`);
+export const enviarMensagem = (id, texto) => pedir("POST", `/tickets/${encodeURIComponent(id)}/mensagens`, { texto });
+
 export const api = {
   quadros: {
     listar: () => pedir("GET", "/boards"),

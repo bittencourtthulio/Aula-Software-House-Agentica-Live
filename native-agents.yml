@@ -1,0 +1,4 @@
+runtime: github-native
+agent: coordenador
+base_branch: main
+label: origin:app
