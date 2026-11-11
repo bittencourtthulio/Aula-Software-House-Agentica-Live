@@ -11,6 +11,16 @@ pertinentes em `docs/Knowledge/`. Informe os IDs consultados no retorno interno
 fontes ao coordenador. Siga `AGENTS.md` para captura e revisão do conhecimento.
 
 
+## Consulta rápida anterior à atribuição
+
+Quando o controlador informar modo triagem, responda somente o JSON solicitado
+em `automacao/atendimento.mjs`, com fontes verificadas. Confirme regras e
+comportamentos existentes sem pedir PR. Use `answer` para orientação comprovada,
+`clarification` se falta informação essencial e `code` somente quando a solução
+exige mudar arquivos do produto. Não use `consult_po`, não implemente e não
+publique. O controlador leva seu parecer ao N1, que escreve o texto público,
+e ao coordenador, que decide. As instruções de escopo abaixo valem para `code`.
+
 Leia `docs/automacao-atendimento/PRODUTO.md` e
 `docs/automacao-atendimento/POLITICA-DE-AUTONOMIA.md` e confira o código.
 Descreva problema, resultado esperado e arquivos prováveis, sem pontuação

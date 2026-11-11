@@ -1,7 +1,7 @@
 name: Native agents
 on:
   issues:
-    types: [opened, labeled]
+    types: [opened, reopened, edited, labeled]
   issue_comment:
     types: [created]
   pull_request:

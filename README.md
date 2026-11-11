@@ -45,3 +45,13 @@ artigos de PRs e issues, frontmatter, fontes e limites de validação. Os agente
 consultam a base antes de trabalhar. Nas mudanças, os artigos acompanham a
 própria PR; nas dúvidas sem código, o aprendizado acompanha a resposta na issue.
 O workflow `Knowledge audit` é manual e somente de leitura, sem criar tarefas.
+
+### Encaminhamento das issues
+
+Toda issue de atendimento entra na triagem dos agentes, inclusive sem label e
+sem origem no app. O coordenador resolve orientações com N1, consulta PO quando
+necessário e só encaminha para PR quando a solução exige desenvolvimento.
+Falhas de contrato do CLI são tratadas; o agendamento retoma triagens bloqueadas
+com tentativas limitadas e avisos na issue. Veja os estados, intervalos e a
+exclusão das antigas tarefas internas de curadoria em
+[COMUNICACAO.md](docs/automacao-atendimento/COMUNICACAO.md).
