@@ -128,7 +128,9 @@ svg { flex: none; }
   display: flex; align-items: center; justify-content: space-between; gap: var(--e4);
   padding: var(--e6) var(--e8) var(--e4);
 }
+.quadro-identificacao { flex: 1; min-width: 0; display: grid; gap: var(--e1); }
 .quadro-titulo { font-size: var(--titulo-1); line-height: 1.2; letter-spacing: -0.02em; color: var(--noite); text-wrap: balance; }
+.quadro-contagem { font-size: var(--meta); color: var(--secundario); }
 .quadro-acoes { display: flex; gap: var(--e1); }
 
 .listas {
