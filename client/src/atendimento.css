@@ -1,0 +1,42 @@
+.atendimento { display: grid; grid-template-columns: 248px minmax(0, 1fr); height: 100dvh; min-height: 540px; background: var(--superficie); }
+.atendimento-tickets { min-width: 0; overflow-y: auto; background: var(--fundo); border-right: 1px solid var(--borda); padding: var(--e4); }
+.atendimento-lista-topo { display: grid; gap: var(--e4); }
+.atendimento h1 { font-size: var(--titulo-2); color: var(--noite); letter-spacing: -.02em; text-wrap: balance; }
+.atendimento-local, .atendimento-lista-vazia { color: var(--secundario); font-size: var(--meta); margin-top: var(--e4); text-wrap: pretty; }
+.atendimento-lista { display: grid; gap: var(--e1); margin-top: var(--e6); }
+.atendimento-ticket { display: flex; gap: var(--e2); align-items: flex-start; width: 100%; min-height: 64px; padding: var(--e3); border: 1px solid transparent; border-radius: var(--r2); background: transparent; text-align: left; cursor: pointer; transition: background-color 180ms ease-out, border-color 180ms ease-out; }
+.atendimento-ticket:hover { background: var(--superficie); }
+.atendimento-ticket[aria-current] { background: var(--superficie); border-color: var(--borda-forte); color: var(--oceano); }
+.atendimento-ticket:active { transform: scale(.96); }
+.atendimento-ticket > span { min-width: 0; }
+.atendimento-ticket strong, .atendimento-ticket small { display: block; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.atendimento-ticket small { color: var(--secundario); margin-top: var(--e1); }
+.atendimento-conversa { min-width: 0; min-height: 0; display: flex; flex-direction: column; position: relative; }
+.atendimento-cabecalho { padding: var(--e4) var(--e6); border-bottom: 1px solid var(--borda); }
+.atendimento-cabecalho h2 { font-size: var(--titulo-3); overflow-wrap: anywhere; text-wrap: balance; }
+.atendimento-cabecalho span { color: var(--secundario); font-size: var(--meta); font-variant-numeric: tabular-nums; }
+.atendimento-historico { flex: 1; min-height: 0; overflow-y: auto; padding: var(--e6); }
+.atendimento-historico > .vazio-canvas { min-height: 100%; }
+.atendimento-mensagens { width: min(100%, 70ch); margin-inline: auto; display: grid; gap: var(--e6); }
+.atendimento-mensagem { padding: var(--e4); border-radius: var(--r3); background: var(--fundo); }
+.atendimento-mensagem > div { display: flex; align-items: baseline; flex-wrap: wrap; gap: var(--e2); margin-bottom: var(--e2); }
+.atendimento-mensagem time { color: var(--secundario); font-size: var(--meta); font-variant-numeric: tabular-nums; }
+.atendimento-mensagem p { white-space: pre-wrap; overflow-wrap: anywhere; text-wrap: pretty; }
+.atendimento-compositor { width: min(100%, 76ch); margin-inline: auto; padding: var(--e4) var(--e6) var(--e6); display: grid; gap: var(--e2); }
+.atendimento-compositor > label { font-weight: 600; font-size: var(--meta); color: var(--secundario); }
+.atendimento-compositor textarea { max-height: 220px; }
+.atendimento-envio { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--e3); }
+.atendimento-envio small { color: var(--secundario); max-width: 35ch; }
+.atendimento-erro { padding: var(--e3) var(--e4); background: var(--perigo-fraco); color: var(--perigo); border-bottom: 1px solid var(--perigo); }
+.atendimento-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+@media (max-width: 1100px) { .atendimento { grid-template-columns: 200px minmax(0, 1fr); } }
+@media (max-width: 900px) {
+  .atendimento { grid-template-columns: minmax(0, 1fr); height: auto; min-height: 80dvh; }
+  .atendimento-tickets { border-right: 0; border-bottom: 1px solid var(--borda); }
+  .atendimento-lista-topo { display: flex; align-items: center; justify-content: space-between; gap: var(--e2); }
+  .atendimento-lista { display: flex; overflow-x: auto; margin-top: var(--e3); padding-bottom: var(--e1); }
+  .atendimento-lista li { flex: 0 0 200px; min-width: 0; }
+  .atendimento-conversa { min-height: 65dvh; }
+  .atendimento-historico { max-height: 60dvh; padding: var(--e4); }
+  .atendimento-compositor { padding: var(--e4); }
+}
