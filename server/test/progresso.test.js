@@ -138,6 +138,7 @@ test("eventos de edição e agendamento reconciliam mesmo após issue já atribu
         else if (pathApi.startsWith("/issues/7/comments?")) dados = [...comentarios];
         else if (pathApi === "/pulls/8") dados = pr;
         else if (pathApi.startsWith("/pulls?")) dados = [pr];
+        else if (pathApi.startsWith("/issues?")) dados = [issue];
         else assert.fail(pathApi);
         return { ok: true, status: 200, json: async () => dados };
       };

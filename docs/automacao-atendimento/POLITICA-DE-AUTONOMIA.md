@@ -58,6 +58,11 @@ arquitetura React/Vite, Node e SQLite, salvo pedido explícito de troca.
   para essas ações. A PR pode ser criada e fica aberta para revisão.
 - Respeite as permissões e o sandbox do ambiente; esta política não os altera.
 
+Para dúvidas exclusivamente de uso resolvidas por N1 e coordenador, está
+explicitamente autorizado responder na issue original e encerrá-la após a
+publicação, sem PR. Essa autorização não inclui merge, deploy ou fechamento
+de pedidos de código. Se faltar informação, pergunte e mantenha a issue aberta.
+
 Responda dúvidas com base em `PRODUTO.md` e no código atual. Não invente
 ações concluídas, recursos já disponíveis, preços ou prazos. Para dúvidas
 comerciais, consulte `automacao/commercial-catalog.json`; se faltar uma
