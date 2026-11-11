@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { randomUUID } from "node:crypto";
 import { pathToFileURL } from "node:url";
+import { analisarAtendimento, validarAtendimento, publicarAtendimento, retomarAtendimento } from "./atendimento.mjs";
 import { lerProgresso, blocoProgresso, marcadorUpdate } from "./progresso.mjs";
 
 export function montarAtribuicao({ repo, issue, requestId, resultPath, pedido }) {
@@ -10,7 +11,7 @@ export function montarAtribuicao({ repo, issue, requestId, resultPath, pedido })
   } };
 }
 
-export async function executar(env = process.env, rede = fetch) {
+export async function executar(env = process.env, rede = fetch, analisar = analisarAtendimento) {
   const evento = env.GITHUB_EVENT_PATH ? JSON.parse(readFileSync(env.GITHUB_EVENT_PATH, "utf8")) : {};
   const repo = env.GITHUB_REPOSITORY;
   if (!/^[\w.-]+\/[\w.-]+$/.test(repo ?? "")) throw new Error("Informe GITHUB_REPOSITORY.");
@@ -41,6 +42,10 @@ export async function executar(env = process.env, rede = fetch) {
       const origem = await api(`/issues/${progresso.issueNumber}`);
       await reconciliarProgresso(api, origem, pr, repo);
     }
+    const abertas = await listarPaginado(api, "/issues?state=open&labels=origin%3Aapp&per_page=100");
+    for (const origem of abertas) {
+      if (!origem.pull_request) await retomarAtendimento(api, origem);
+    }
     return;
   }
   if (!Number.isSafeInteger(numero) || numero < 1) {
@@ -50,7 +55,7 @@ export async function executar(env = process.env, rede = fetch) {
   if (dryRun) {
     if (evento.issue && !evento.issue.labels?.some((l) => (l.name ?? l) === "origin:app")) return;
     const requestId = evento.issue?.body?.match(/requestId:\s*([0-9a-f-]{36})/i)?.[1] ?? randomUUID();
-    console.log(JSON.stringify({ dryRun: true, issue: numero, payload: montarAtribuicao({ repo,
+    console.log(JSON.stringify({ dryRun: true, issue: numero, firstStep: "N1 e coordenador analisam antes de atribuir; somente code usa o payload abaixo", payload: montarAtribuicao({ repo,
       issue: numero, requestId, resultPath: `automacao/resultados/${requestId}.json`,
       pedido: evento.issue?.body ?? "Reler a issue e os comentários antes de agir." }) }, null, 2));
     return;
@@ -63,6 +68,8 @@ export async function executar(env = process.env, rede = fetch) {
     comentarios.push(...lote);
     if (lote.length < 100) break;
   }
+  if (await retomarAtendimento(api, issue, comentarios)) return;
+  if (issue.state === "closed") return;
   // Só o comentário do próprio workflow pode encerrar a atribuição.
   const marcador = comentarios.find((c) => c.user?.login === "github-actions[bot]" &&
     /<!-- native-agents:assigned requestId=[0-9a-f-]{36} -->/i.test(c.body));
@@ -79,6 +86,14 @@ export async function executar(env = process.env, rede = fetch) {
   // Eventos de PR/comentários de bots nunca iniciam outra atribuição.
   if (evento.pull_request || evento.comment?.user?.type === "Bot") return;
   const requestId = issue.body?.match(/requestId:\s*([0-9a-f-]{36})/i)?.[1] ?? randomUUID();
+  // Bots e reações a comentários não reiniciam a triagem. Uma resposta humana
+  // a clarification é analisada com todo o histórico, na mesma issue.
+  const resultado = validarAtendimento(await analisar({ issue, comentarios, requestId }, env), requestId);
+  if (!resultado) throw new Error("Triagem inválida; issue mantida aberta, sem atribuir ao agente de código.");
+  if (resultado.outcome !== "code") {
+    await publicarAtendimento(api, issue, resultado, comentarios);
+    return;
+  }
   const resultPath = `automacao/resultados/${requestId}.json`;
   const payload = montarAtribuicao({ repo, issue: numero, requestId, resultPath,
     pedido: `${issue.title}\n${issue.body ?? ""}\n\nComentários:\n${comentarios.map((c) => c.body).join("\n")}` });

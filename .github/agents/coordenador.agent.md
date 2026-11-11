@@ -5,6 +5,21 @@ target: github-copilot
 tools: [read, search, edit, agent, report_progress]
 ---
 
+## Triagem anterior à atribuição (Copilot CLI)
+
+Quando o controlador informar este modo, faça somente análise de leitura e
+retorne o JSON solicitado pelo contrato de `automacao/atendimento.mjs`.
+O controlador invoca N1 e depois coordenador de verdade, em chamadas separadas.
+O N1 consulta o produto/código e escreve a orientação; o coordenador verifica
+as evidências e preserva o texto do N1. Dúvida de uso resolvida é `answer`;
+informação essencial ausente é `clarification`; alterações e outros pedidos
+seguem como `code`. Não invoque outros agentes nesta fase, não use
+`report_progress`, não grave relatório, não crie commit/PR e não publique.
+O controlador responde na issue, transporta o texto ao ticket e fecha somente
+`answer` após publicar. Perguntas de esclarecimento mantêm a issue aberta.
+As instruções de implementação abaixo valem após encaminhamento como `code`.
+
+
 Leia as instruções aplicáveis, `docs/automacao-atendimento/PRODUTO.md` e
 `docs/automacao-atendimento/POLITICA-DE-AUTONOMIA.md`. Inspecione os caminhos
 e o contrato do controlador disponível. O controlador também pode ser alterado

@@ -73,3 +73,41 @@ São necessários `AGENT_RUNTIME=github-native`, `AGENT_DRY_RUN=false`,
 `GITHUB_REPOSITORY` e `GITHUB_TOKEN` no app; no workflow, os tokens já descritos
 no README. O token do app precisa ler os comentários além de criar issues.
 Sem essa configuração, nenhuma mensagem remota é importada.
+
+## Dúvidas de uso sem PR
+
+Atribuir uma issue ao Copilot coding agent sempre cria uma PR
+([GitHub](https://docs.github.com/en/copilot/how-tos/copilot-on-github/use-copilot-agents/kick-off-a-task)).
+Por isso, antes da atribuição, `automacao/atendimento.mjs` invoca realmente
+N1 e coordenador, em sequência, pelo Copilot CLI. Ambos têm somente ferramentas
+de leitura (`view`, `grep`, `glob`), sem shell, escrita ou MCP. Os perfis
+existentes reconhecem o modo de triagem; não há resposta pronta ou simulação.
+
+O contrato JSON exige `requestId`, `outcome`, `publicText` e `evidence` (lista
+não vazia de caminhos/evidências). `answer` é reservado a dúvida de uso
+comprovada no produto e código; `clarification` pede informação essencial;
+`code` segue para os especialistas e atribuição existentes. O coordenador
+confirma a classificação e preserva o texto do N1. Divergência, JSON inválido,
+timeout ou erro de autenticação deixam a issue aberta, sem solicitar PR.
+Consulte o log do workflow e reexecute manualmente após corrigir o bloqueio.
+
+Em `answer`, o workflow publica a orientação legível e o bloco de progresso
+na própria issue e somente depois encerra como concluída. A resposta é importada
+pelo chat usando o mesmo contrato e ID `resposta-final`. Não grava resultado
+no repositório, não faz commit, não exige revisão de código/build/merge. Em
+`clarification`, publica a pergunta, mantém aberto e analisa a resposta humana
+na mesma issue. Comentários de bots não iniciam nova triagem. IDs estáveis e
+uma fila única evitam duplicação; agendamento e execução manual retomam apenas
+o fechamento caso a publicação já tenha ocorrido. O agendamento não repete
+chamadas de IA de casos bloqueados. Issues já atribuídas seguem o fluxo antigo.
+
+No Actions, configure `COPILOT_CLI_TOKEN` com token aceito pelo Copilot CLI
+(PAT fino com Copilot Requests de leitura ou OAuth compatível) e uma licença
+Copilot ativa. O token `COPILOT_AGENT_TOKEN` de atribuição continua separado;
+um PAT clássico não autentica o CLI. O workflow instala `@github/copilot`.
+Não há alteração de secrets, licenças ou permissões externas nesta correção.
+A ausência do token bloqueia a triagem em vez de criar uma PR para a dúvida.
+`AGENT_DRY_RUN=true` continua sem rede nem invocação de agentes.
+
+Referências: [CLI no Actions](https://docs.github.com/en/copilot/how-tos/copilot-cli/automate-copilot-cli/automate-with-actions),
+[autenticação](https://docs.github.com/en/copilot/how-tos/copilot-cli/set-up-copilot-cli/authenticate-copilot-cli).
