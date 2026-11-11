@@ -13,22 +13,41 @@
 .atendimento-ticket strong, .atendimento-ticket small { display: block; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 .atendimento-ticket small { color: var(--secundario); margin-top: var(--e1); }
 .atendimento-conversa { min-width: 0; min-height: 0; display: flex; flex-direction: column; position: relative; }
-.atendimento-cabecalho { padding: var(--e4) var(--e6); border-bottom: 1px solid var(--borda); }
+.atendimento-cabecalho { display: flex; align-items: center; justify-content: space-between; gap: var(--e4); padding: var(--e4) var(--e6); border-bottom: 1px solid var(--borda); }
+.atendimento-cabecalho > div { min-width: 0; }
+.atendimento-sobrancelha { display: block; margin-bottom: var(--e1); }
+.atendimento-total { flex-shrink: 0; }
 .atendimento-cabecalho h2 { font-size: var(--titulo-3); overflow-wrap: anywhere; text-wrap: balance; }
 .atendimento-cabecalho span { color: var(--secundario); font-size: var(--meta); font-variant-numeric: tabular-nums; }
-.atendimento-historico { flex: 1; min-height: 0; overflow-y: auto; padding: var(--e6); }
+.atendimento-historico { flex: 1; min-height: 0; overflow-y: auto; padding: var(--e8) var(--e6); scrollbar-gutter: stable; }
 .atendimento-historico > .vazio-canvas { min-height: 100%; }
-.atendimento-mensagens { width: min(100%, 70ch); margin-inline: auto; display: grid; gap: var(--e6); }
-.atendimento-mensagem { padding: var(--e4); border-radius: var(--r3); background: var(--fundo); }
-.atendimento-mensagem > div { display: flex; align-items: baseline; flex-wrap: wrap; gap: var(--e2); margin-bottom: var(--e2); }
-.atendimento-mensagem time { color: var(--secundario); font-size: var(--meta); font-variant-numeric: tabular-nums; }
-.atendimento-mensagem p { white-space: pre-wrap; overflow-wrap: anywhere; text-wrap: pretty; }
-.atendimento-compositor { width: min(100%, 76ch); margin-inline: auto; padding: var(--e4) var(--e6) var(--e6); display: grid; gap: var(--e2); }
-.atendimento-compositor > label { font-weight: 600; font-size: var(--meta); color: var(--secundario); }
-.atendimento-compositor textarea { max-height: 220px; }
+.atendimento-mensagens { width: min(100%, 78ch); margin-inline: auto; display: flex; flex-direction: column; gap: var(--e8); }
+.atendimento-mensagem { min-width: 0; max-width: 88%; }
+.atendimento-mensagem--cliente { align-self: flex-end; }
+.atendimento-mensagem--n1 { align-self: flex-start; }
+.atendimento-mensagem-meta { display: flex; align-items: center; flex-wrap: wrap; gap: var(--e2); margin-bottom: var(--e2); }
+.atendimento-mensagem--cliente .atendimento-mensagem-meta { justify-content: flex-end; }
+.atendimento-autor { display: inline-flex; align-items: center; gap: 6px; padding: 3px 8px; border-radius: var(--r-cheio); font-size: 12px; font-weight: 600; }
+.atendimento-mensagem--cliente .atendimento-autor { background: var(--fundo); color: var(--secundario); }
+.atendimento-mensagem--n1 .atendimento-autor { background: var(--oceano-fraco); color: var(--oceano-escuro); }
+.atendimento-papel { color: var(--secundario); font-size: 12px; }
+.atendimento-mensagem time { color: var(--secundario); font-size: 11px; font-variant-numeric: tabular-nums; }
+.atendimento-mensagem p { white-space: pre-wrap; overflow-wrap: anywhere; text-wrap: pretty; line-height: 1.75; }
+.atendimento-mensagem--cliente p { padding: 12px 18px; border-radius: 20px 20px 4px 20px; background: var(--fundo); }
+.atendimento-mensagem--n1 p { padding: var(--e1) 0; }
+.atendimento-compositor { flex-shrink: 0; width: min(100%, calc(78ch + 48px)); margin-inline: auto; padding: var(--e4) var(--e6) var(--e6); display: grid; gap: var(--e2); }
+.atendimento-caixa { padding: var(--e3); background: var(--superficie); border: 1px solid var(--borda-forte); border-radius: 24px; box-shadow: var(--sombra-2); transition: border-color 180ms ease-out, box-shadow 180ms ease-out; }
+.atendimento-caixa:focus-within { border-color: var(--oceano); box-shadow: 0 0 0 3px var(--oceano-fraco); }
+.atendimento-caixa[data-invalido] { border-color: var(--perigo); }
+.atendimento-compositor textarea { display: block; width: 100%; min-height: 44px; max-height: 220px; padding: var(--e2); border: 0; border-radius: var(--r2); background: transparent; resize: none; line-height: 1.6; }
+.atendimento-compositor textarea:focus { outline: none; }
+.atendimento-compositor textarea::placeholder { color: var(--secundario); }
 .atendimento-contador { justify-self: end; color: var(--secundario); font-size: var(--meta); font-variant-numeric: tabular-nums; }
-.atendimento-envio { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--e3); }
-.atendimento-envio small { color: var(--secundario); max-width: 35ch; }
+.atendimento-envio { display: flex; justify-content: space-between; align-items: center; gap: var(--e3); margin-top: var(--e2); }
+.atendimento-destino { display: inline-flex; align-items: center; gap: 6px; padding-left: var(--e2); font-size: var(--meta); font-weight: 600; }
+.atendimento-destino > span { color: var(--secundario); font-weight: 400; }
+.atendimento-enviar.botao { border-radius: var(--r-cheio); width: 40px; height: 40px; }
+.atendimento-ajuda { color: var(--secundario); text-align: center; font-size: 11px; text-wrap: pretty; }
 .atendimento-erro { padding: var(--e3) var(--e4); background: var(--perigo-fraco); color: var(--perigo); border-bottom: 1px solid var(--perigo); }
 .atendimento-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
 @media (max-width: 1100px) { .atendimento { grid-template-columns: 200px minmax(0, 1fr); } }
@@ -41,4 +60,14 @@
   .atendimento-conversa { min-height: 65dvh; }
   .atendimento-historico { max-height: 60dvh; padding: var(--e4); }
   .atendimento-compositor { padding: var(--e4); }
+}
+@media (max-width: 480px) {
+  .atendimento-cabecalho { align-items: flex-start; flex-direction: column; gap: var(--e1); padding: var(--e4); }
+  .atendimento-mensagem { max-width: 94%; }
+  .atendimento-mensagem-meta { gap: 6px; }
+  .atendimento-papel { display: none; }
+  .atendimento-ajuda { font-size: 10px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .atendimento-caixa { transition: none; }
 }
