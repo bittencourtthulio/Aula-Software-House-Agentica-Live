@@ -19,7 +19,11 @@ e listas; o quadro também tem ação de exclusão. A confirmação avisa que
 excluir um quadro apaga suas listas e cartões, e excluir uma lista apaga
 seus cartões. Essas exclusões não podem ser desfeitas pela interface.
 
-Atendimento: os tickets ficam no servidor e criam uma issue no GitHub.
+Atendimento: os tickets ficam no servidor e, com integração habilitada, criam
+uma issue no GitHub. O coordenador registra os marcos dos agentes na issue e
+solicita ao N1 os avisos úteis ao cliente. O ticket exibe somente esses textos
+públicos. O transporte, as condições de ativação e os intervalos estão em
+`COMUNICACAO.md`.
 
 ## Execução local e limites
 
@@ -38,8 +42,9 @@ Fontes: `package.json`, `client/src/main.jsx`, `client/src/Landing.jsx`,
 
 ## Pendências
 
-`AGENTS.md` e `.github/agents` estavam ausentes nesta cópia na leitura.
-A integração com GitHub Copilot via `.github/agents/*.agent.md` permanece
-pendente; esta etapa não cria agentes nem um motor próprio de IA.
+Os perfis do Copilot estão em `.github/agents/*.agent.md`, e o controlador
+em `automacao/controlador.mjs`. A execução remota depende das credenciais,
+configurações e workflows descritos no README. Código presente não comprova
+que uma sessão remota tenha executado nem que uma mensagem tenha sido entregue.
 Condições comerciais ainda desconhecidas estão no catálogo
 `automacao/commercial-catalog.json`.

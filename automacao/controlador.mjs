@@ -1,11 +1,12 @@
 import { readFileSync } from "node:fs";
 import { randomUUID } from "node:crypto";
 import { pathToFileURL } from "node:url";
+import { lerProgresso, blocoProgresso, marcadorUpdate } from "./progresso.mjs";
 
 export function montarAtribuicao({ repo, issue, requestId, resultPath, pedido }) {
   return { assignees: ["copilot-swe-agent[bot]"], agent_assignment: {
     target_repo: repo, base_branch: "main", custom_agent: "coordenador",
-    custom_instructions: `Issue #${issue}.\n${pedido}\nrequestId: ${requestId}\nresultPath: ${resultPath}`,
+    custom_instructions: `Issue #${issue}.\n${pedido}\nrequestId: ${requestId}\nresultPath: ${resultPath}\nLeia docs/automacao-atendimento/COMUNICACAO.md. A cada marco, preserve na descrição da PR um bloco native-agents-progress completo, com issueNumber: ${issue} e requestId recebido. Use report_progress durante o trabalho, sem esperar o resultado final.`,
   } };
 }
 
@@ -29,7 +30,19 @@ export async function executar(env = process.env, rede = fetch) {
   const referencias = [...(evento.pull_request?.body ?? "").matchAll(
     /(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s+(?:https:\/\/github\.com\/[^/]+\/[^/]+\/issues\/)?#?(\d+)/gi)]
     .map((m) => Number(m[1]));
-  const numero = Number(env.ISSUE_NUMBER || evento.inputs?.issue_number || evento.issue?.number || referencias[0]);
+  let numero = Number(env.ISSUE_NUMBER || evento.inputs?.issue_number || evento.issue?.number || referencias[0]);
+  const progressoEvento = lerProgresso(evento.pull_request?.body);
+  if (progressoEvento) numero = progressoEvento.issueNumber;
+  if ((!Number.isSafeInteger(numero) || numero < 1) && evento.schedule && !dryRun) {
+    const prs = await listarPaginado(api, "/pulls?state=open&per_page=100");
+    for (const pr of prs) {
+      const progresso = lerProgresso(pr.body);
+      if (!progresso || !prConfiavel(pr, repo)) continue;
+      const origem = await api(`/issues/${progresso.issueNumber}`);
+      await reconciliarProgresso(api, origem, pr, repo);
+    }
+    return;
+  }
   if (!Number.isSafeInteger(numero) || numero < 1) {
     console.log("Nenhuma issue de origem identificada.");
     return;
@@ -53,7 +66,18 @@ export async function executar(env = process.env, rede = fetch) {
   // Só o comentário do próprio workflow pode encerrar a atribuição.
   const marcador = comentarios.find((c) => c.user?.login === "github-actions[bot]" &&
     /<!-- native-agents:assigned requestId=[0-9a-f-]{36} -->/i.test(c.body));
-  if (marcador) return;
+  if (marcador) {
+    // Comentários gerados pela ponte não disparam outra reconciliação.
+    // PRs, agendamento e execução manual compartilham a fila pr-reconcile.
+    if (!evento.pull_request && !env.ISSUE_NUMBER && !evento.inputs?.issue_number) return;
+    const prs = evento.pull_request
+      ? [await api(`/pulls/${evento.pull_request.number}`)]
+      : await listarPaginado(api, "/pulls?state=open&per_page=100");
+    for (const pr of prs) await reconciliarProgresso(api, issue, pr, repo, comentarios);
+    return;
+  }
+  // Eventos de PR/comentários de bots nunca iniciam outra atribuição.
+  if (evento.pull_request || evento.comment?.user?.type === "Bot") return;
   const requestId = issue.body?.match(/requestId:\s*([0-9a-f-]{36})/i)?.[1] ?? randomUUID();
   const resultPath = `automacao/resultados/${requestId}.json`;
   const payload = montarAtribuicao({ repo, issue: numero, requestId, resultPath,
@@ -63,9 +87,42 @@ export async function executar(env = process.env, rede = fetch) {
   }
   await api(`/issues/${numero}/comments`, { method: "POST", body: { body:
     `<!-- native-agents:assigned requestId=${requestId} -->\nResumo interno: issue #${numero} atribuída ao coordenador.\nrequestId: ${requestId}\nresultPath: ${resultPath}` } });
-  // TODO: reconciliar mensagens N1 do resultPath com o backend de tickets.
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   executar().catch((erro) => { console.error(erro.message); process.exitCode = 1; });
+}
+
+async function listarPaginado(api, path) {
+  const lista = [];
+  for (let page = 1; ; page++) {
+    const lote = await api(`${path}&page=${page}`);
+    lista.push(...lote);
+    if (lote.length < 100) return lista;
+  }
+}
+
+function prConfiavel(pr, repo) {
+  return pr.user?.type === "Bot" && ["copilot", "copilot-swe-agent[bot]"].includes(pr.user?.login?.toLowerCase()) &&
+    pr.head?.repo?.full_name === repo && pr.base?.repo?.full_name === repo && pr.base?.ref === "main";
+}
+
+export async function reconciliarProgresso(api, issue, pr, repo, comentarios) {
+  const progresso = lerProgresso(pr.body);
+  if (!progresso || !prConfiavel(pr, repo) || issue.pull_request ||
+      !issue.labels?.some((l) => l.name === "origin:app") ||
+      progresso.issueNumber !== issue.number ||
+      issue.body?.match(/requestId:\s*([0-9a-f-]{36})/i)?.[1] !== progresso.requestId) return;
+  comentarios ??= await listarPaginado(api, `/issues/${issue.number}/comments?per_page=100`);
+  const atribuicao = `<!-- native-agents:assigned requestId=${progresso.requestId} -->`;
+  if (!comentarios.some((c) => c.user?.login === "github-actions[bot]" && c.body?.includes(atribuicao))) return;
+  for (const update of progresso.updates) {
+    const marcador = marcadorUpdate(progresso.requestId, update.id);
+    const existente = comentarios.find((c) => c.user?.login === "github-actions[bot]" && c.body?.startsWith(marcador));
+    // Um marco publicado é imutável; correções e novos avisos recebem um novo ID.
+    if (existente) continue;
+    const body = `${marcador}\n**${update.agent}** — ${update.internalText}\n\n${blocoProgresso({ ...progresso, updates: [update] })}`;
+    const criado = await api(`/issues/${issue.number}/comments`, { method: "POST", body: { body } });
+    comentarios.push(criado);
+  }
 }

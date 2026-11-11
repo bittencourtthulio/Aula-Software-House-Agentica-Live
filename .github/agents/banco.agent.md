@@ -39,3 +39,8 @@ devolva diagnóstico ao coordenador, sem contornar sandbox. Devolva a
 migração criada, arquivos alterados, critérios atendidos, impacto na API e
 pendências, preservando `requestId`. O N1 escreve os textos públicos e o
 coordenador grava `resultPath`. Não faça merge nem feche issue.
+
+Siga `docs/automacao-atendimento/COMUNICACAO.md`. A cada marco delegado,
+devolva imediatamente ao coordenador `requestId`, `agent`, `internalText`,
+evidências reais e pendências/bloqueios. Não acumule todo o trabalho para
+um único retorno final; o coordenador precisa registrar as etapas na issue.

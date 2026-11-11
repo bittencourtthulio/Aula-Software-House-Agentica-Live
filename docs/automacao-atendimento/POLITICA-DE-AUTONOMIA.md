@@ -1,8 +1,9 @@
 # Política de autonomia
 
-Esta política define o limite de um futuro agente de produto via GitHub
-Copilot (`.github/agents/*.agent.md`). Esses arquivos estão ausentes nesta
-cópia; a política, sozinha, não instala nem executa automação.
+Esta política define o limite dos agentes de produto via GitHub Copilot
+(`.github/agents/*.agent.md`). O contrato de comunicação de progresso está
+em `COMUNICACAO.md`; relatar uma etapa não amplia a autorização para código.
+A política, sozinha, não instala nem executa automação.
 
 ## O que pode fazer
 

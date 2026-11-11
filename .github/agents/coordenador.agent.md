@@ -22,7 +22,15 @@ relaciona um dado que o esquema atual não tem. Se sim, invoque `banco` antes
 do `desenvolvedor`, com `requestId`, `allowedFiles` e critérios; repasse ao
 `desenvolvedor` a migração e o impacto na API que `banco` devolver, e peça ao
 `revisor` que confira também a migração. Nenhum outro agente altera o banco.
-Use `report_progress` por marco; `working` indica apenas andamento.
+Leia e siga `docs/automacao-atendimento/COMUNICACAO.md`.
+Divida delegações longas em marcos curtos. Registre início, resultado e bloqueios
+de cada agente durante o trabalho; avalie cada retorno antes de prosseguir.
+Se o marco ajudar o cliente a acompanhar o pedido, invoque `n1` para escrever
+`publicText`; nos marcos somente internos use `publicText: ""`.
+Use `report_progress` a cada marco para preservar na descrição da PR o bloco
+`native-agents-progress` acumulado com `issueNumber`, `requestId` e `updates`.
+O controlador publica esses marcos na issue; não espere o JSON final.
+`working` indica apenas andamento.
 Se ferramenta ou contrato faltar, informe o bloqueio sem alegar execução.
 
 Grave em `resultPath` o JSON do controlador com `requestId`, `outcome`,
@@ -30,7 +38,7 @@ Grave em `resultPath` o JSON do controlador com `requestId`, `outcome`,
 outcomes aceitos pelo controlador. Em `code`, cada critério tem `id` e
 `description`; nos demais outcomes, `allowedFiles` e `criteria` ficam vazios.
 Cada update tem `id` estável, `agent`, `internalText` e `publicText` escrito
-pelo N1. Preserve IDs ao atualizar; registre em `agents` só invocações reais.
+pelo N1 ou vazio para marcos internos. Preserve IDs ao atualizar; registre em `agents` só invocações reais.
 
 Preserve React/Vite, Node e SQLite local. Não leia segredos ou `.env`, não
 altere o banco diretamente (só o agente `banco`, por migração), workflows,

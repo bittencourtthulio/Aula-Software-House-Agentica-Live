@@ -21,3 +21,8 @@ encaminhe problema, resultado e caminhos ao responsável, sem autorizar código.
 
 Preserve `requestId`; devolva escopo e critérios ao coordenador. O N1 escreve
 o texto público. Não implemente nem altere o controlador ou `resultPath`.
+
+Siga `docs/automacao-atendimento/COMUNICACAO.md`. A cada marco delegado,
+devolva imediatamente ao coordenador `requestId`, `agent`, `internalText`,
+evidências reais e pendências/bloqueios. Não acumule todo o trabalho para
+um único retorno final; o coordenador precisa registrar as etapas na issue.
