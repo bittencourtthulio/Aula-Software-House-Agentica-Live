@@ -19,9 +19,25 @@ permissions:
   issues: write
   pull-requests: read
 concurrency:
-  group: native-agents-${{ github.repository }}-${{ github.event.issue.number || 'pr-reconcile' }}
+  group: native-agents-${{ github.repository }}-pr-reconcile
   cancel-in-progress: false
 jobs:
+  validar:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
   coordenar:
     runs-on: ubuntu-latest
     steps:
@@ -32,9 +48,13 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Instalar Copilot CLI para triagem sem PR
+        if: github.event_name != 'pull_request' && vars.AGENT_DRY_RUN == 'false'
+        run: npm install --global @github/copilot@1.0.109
       - run: node automacao/controlador.mjs
         env:
           GITHUB_TOKEN: ${{ github.token }}
+          COPILOT_CLI_TOKEN: ${{ secrets.COPILOT_CLI_TOKEN }}
           COPILOT_AGENT_TOKEN: ${{ secrets.COPILOT_AGENT_TOKEN }}
           AGENT_DRY_RUN: ${{ vars.AGENT_DRY_RUN || 'true' }}
           ISSUE_NUMBER: ${{ inputs.issue_number }}

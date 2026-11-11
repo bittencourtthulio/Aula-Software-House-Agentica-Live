@@ -10,7 +10,13 @@
 Configure os tokens pelo ambiente/Secrets, sem gravá-los no repositório.
 O cookie HttpOnly `fluxo_dono` restringe tickets ao navegador que os criou.
 Falhas de criação preservam o ticket como `issue_pendente`; uma nova tentativa deve reler seu requestId.
-O controlador atribui a mesma issue ao agente `coordenador`, com base em `main`.
+Antes de atribuir, o controlador chama N1 e coordenador pelo Copilot CLI em
+modo de leitura. Dúvidas de uso resolvidas recebem resposta na issue e são
+encerradas sem PR; esclarecimentos mantêm a issue aberta. Pedidos de código
+seguem para atribuição ao `coordenador`, com base em `main`.
+No Actions, configure também `COPILOT_CLI_TOKEN` (Copilot Requests de leitura
+em PAT fino ou OAuth compatível e licença Copilot ativa). Sem ele, a triagem
+fica bloqueada e nenhuma PR é solicitada. Veja o contrato de comunicação.
 Os agentes reportam marcos ao coordenador durante o trabalho. O coordenador
 registra as etapas na issue e encaminha ao N1 as que forem úteis ao cliente.
 O workflow reconcilia o bloco de progresso da PR nos eventos, manualmente e

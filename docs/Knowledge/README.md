@@ -69,6 +69,10 @@ issues internas. Sem credenciais, o workflow falha explicitamente antes de
 criar tarefas. Para executar: `GITHUB_REPOSITORY=owner/repo node automacao/conhecimento.mjs`,
 com os tokens fornecidos pelo ambiente, sem gravá-los nos arquivos.
 O workflow deve estar em `main` para ativar agendamento/eventos de issues.
+Na PR de introdução, se o script ainda não existir em `main`, a reconciliação
+é adiada com aviso. Outros eventos falham se o script estiver ausente. O checkout
+continua restrito a `main`, sem executar código da PR com credenciais.
+Os testes e o build da PR são executados pelo job `validar` de Native agents.
 
 ## Índice
 
@@ -88,3 +92,4 @@ Resultados de teste citados nos artigos são históricos, não reexecuções des
 | [issue-5](issue-5.md) | Leitura de título longo do cartão | quadro, tooltip |
 | [issue-7](issue-7.md) | Cards ultrapassando a sidebar | atendimento, CSS |
 | [issue-9](issue-9.md) | Como criar novos quadros | N1, uso |
+| [pr-14](pr-14.md) | Primeira execução da curadoria antes da integração em main | conhecimento, workflow |
