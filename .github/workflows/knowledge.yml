@@ -1,0 +1,47 @@
+name: Knowledge
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, closed, edited]
+  issues:
+    types: [closed]
+  schedule:
+    - cron: '17 * * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+  pull-requests: read
+  issues: write
+concurrency:
+  group: knowledge-${{ github.repository }}
+  cancel-in-progress: false
+jobs:
+  reconciliar:
+    # Código confiável de main; nunca execute o código de uma PR com credenciais.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
+      - name: Verificar disponibilidade da curadoria em main
+        id: curadoria
+        shell: bash
+        run: |
+          if test -f automacao/conhecimento.mjs; then
+            echo "disponivel=true" >> "$GITHUB_OUTPUT"
+          elif test "$GITHUB_EVENT_NAME" = pull_request; then
+            echo "disponivel=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Curadoria ainda não integrada em main; execução adiada até o merge."
+          else
+            echo "::error::automacao/conhecimento.mjs ausente em main."
+            exit 1
+          fi
+      - uses: actions/setup-node@v4
+        if: steps.curadoria.outputs.disponivel == 'true'
+        with:
+          node-version: '22'
+      - run: node automacao/conhecimento.mjs
+        if: steps.curadoria.outputs.disponivel == 'true'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          COPILOT_AGENT_TOKEN: ${{ secrets.COPILOT_AGENT_TOKEN }}
