@@ -26,6 +26,7 @@
 .atendimento-compositor { width: min(100%, 76ch); margin-inline: auto; padding: var(--e4) var(--e6) var(--e6); display: grid; gap: var(--e2); }
 .atendimento-compositor > label { font-weight: 600; font-size: var(--meta); color: var(--secundario); }
 .atendimento-compositor textarea { max-height: 220px; }
+.atendimento-contador { justify-self: end; color: var(--secundario); font-size: var(--meta); font-variant-numeric: tabular-nums; }
 .atendimento-envio { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--e3); }
 .atendimento-envio small { color: var(--secundario); max-width: 35ch; }
 .atendimento-erro { padding: var(--e3) var(--e4); background: var(--perigo-fraco); color: var(--perigo); border-bottom: 1px solid var(--perigo); }

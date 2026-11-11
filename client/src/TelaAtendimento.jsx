@@ -16,6 +16,7 @@ export function TelaAtendimento() {
   const [selecionado, setSelecionado] = useState(null);
   const [detalhe, setDetalhe] = useState(null);
   const [novo, setNovo] = useState(false);
+  const [descricaoNova, setDescricaoNova] = useState("");
   const [rascunhos, setRascunhos] = useState({});
   const [erro, setErro] = useState("");
   const [validacao, setValidacao] = useState("");
@@ -88,6 +89,7 @@ export function TelaAtendimento() {
       setDetalhe(criado);
       setSelecionado(criado.id);
       setNovo(false);
+      setDescricaoNova("");
       setValidacao("");
       setErro("");
       setAnuncio("Ticket aberto. Descrição registrada como primeira mensagem.");
@@ -119,7 +121,8 @@ export function TelaAtendimento() {
     }
   }
 
-  const abrirNovo = () => { setNovo(true); setValidacao(""); setErro(""); };
+  const abrirNovo = () => { setNovo(true); setDescricaoNova(""); setValidacao(""); setErro(""); };
+  const fecharNovo = () => { setNovo(false); setDescricaoNova(""); setValidacao(""); setErrosTicket({}); setErro(""); };
   const bloqueado = Boolean(erroLista);
 
   if (carregando) {
@@ -177,14 +180,16 @@ export function TelaAtendimento() {
           : <div className="vazio-canvas"><Icone nome="conversa" tamanho={40} /><h2>Como podemos ajudar?</h2><p>Abra um ticket para registrar sua solicitação e acompanhar as mensagens em uma conversa.</p><Botao variante="primario" icone="mais" onClick={abrirNovo}>Novo ticket</Botao></div>}
         <p className="atendimento-sr" role="status">{anuncio}</p>
       </div>
-      {novo && <Dialogo aberto titulo="Novo ticket" descricao="Dê um título à solicitação e descreva o que você precisa. A descrição inicia a conversa." aoFechar={() => { setNovo(false); setValidacao(""); setErrosTicket({}); setErro(""); }}>
+      {novo && <Dialogo aberto titulo="Novo ticket" descricao="Dê um título à solicitação e descreva o que você precisa. A descrição inicia a conversa." aoFechar={fecharNovo}>
         <form className="formulario" onSubmit={abrirTicket}>
           <Campo rotulo="Título" name="titulo" placeholder="Ex.: Não consigo acessar o quadro" maxLength={120} required autoFocus erro={errosTicket.titulo}
             onChange={() => setErrosTicket((anteriores) => ({ ...anteriores, titulo: "" }))} />
           <Campo rotulo="Descrição" name="descricao" multilinha rows={5} placeholder="Conte o que aconteceu, o que você esperava e como reproduzir o problema." maxLength={5000} required erro={errosTicket.descricao}
-            onChange={() => setErrosTicket((anteriores) => ({ ...anteriores, descricao: "" }))} />
+            value={descricaoNova}
+            onChange={(e) => { setDescricaoNova(e.target.value); setErrosTicket((anteriores) => ({ ...anteriores, descricao: "" })); }} />
+          <p className="atendimento-contador" role="status" aria-label="Caracteres utilizados na descrição" aria-live="polite" aria-atomic="true">{descricaoNova.length}/5000</p>
           {erro && <p className="campo-erro" role="alert">{erro}</p>}
-          <div className="acoes"><Botao onClick={() => { setNovo(false); setValidacao(""); setErro(""); }}>Cancelar</Botao><Botao variante="primario" type="submit" disabled={enviando}>Abrir ticket</Botao></div>
+          <div className="acoes"><Botao onClick={fecharNovo}>Cancelar</Botao><Botao variante="primario" type="submit" disabled={enviando}>Abrir ticket</Botao></div>
         </form>
       </Dialogo>}
     </section>
