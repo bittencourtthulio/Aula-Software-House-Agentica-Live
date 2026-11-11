@@ -123,6 +123,12 @@
       "agent": "coordenador",
       "internalText": "Arquivo de resultado foi criado com outcome code, requestId preservado, cinco agentes efetivamente invocados, três arquivos autorizados pelo PO, critérios atendidos e os marcos acumulados. JSON passou na validação de sintaxe e conteúdo; verificação de segredos não encontrou dados sensíveis. Issue permanece aberta; não houve merge. A atualização do título/corpo remoto do PR segue pendente.",
       "publicText": ""
+    },
+    {
+      "id": "seguranca-entrega-16",
+      "agent": "coordenador",
+      "internalText": "CodeQL foi executado após commit das alterações de código e retornou zero alertas em Actions e JavaScript. Não consegui atualizar o título/corpo do PR: a API GitHub disponível é somente leitura e o navegador falhou com ERR_CERT_AUTHORITY_INVALID. O PR permanece com metadados antigos; sem merge e issue #3 aberta.",
+      "publicText": ""
     }
   ]
 }
