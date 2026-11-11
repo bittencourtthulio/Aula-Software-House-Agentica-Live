@@ -91,36 +91,51 @@ São necessários `AGENT_RUNTIME=github-native`, `AGENT_DRY_RUN=false`,
 no README. O token do app precisa ler os comentários além de criar issues.
 Sem essa configuração, nenhuma mensagem remota é importada.
 
-## Dúvidas de uso sem PR
+## Triagem de toda issue antes de abrir PR
 
-Atribuir uma issue ao Copilot coding agent sempre cria uma PR
-([GitHub](https://docs.github.com/en/copilot/how-tos/copilot-on-github/use-copilot-agents/kick-off-a-task)).
-Por isso, antes da atribuição, `automacao/atendimento.mjs` invoca realmente
-N1 e coordenador, em sequência, pelo Copilot CLI. Ambos têm somente ferramentas
-de leitura (`view`, `grep`, `glob`), sem shell, escrita ou MCP. Os perfis
-existentes reconhecem o modo de triagem; não há resposta pronta ou simulação.
+Toda issue de atendimento do repositório entra na triagem, inclusive as criadas
+manualmente e sem `origin:app`. Só ficam fora PRs e as tarefas internas antigas
+com marcador/label `knowledge:task` ou título `[Knowledge]`, para evitar recursão.
+Issues sem `requestId` recebem UUID estável derivado do repositório e número;
+o app conserva seu identificador original. Abertura, reabertura, edição e
+comentários humanos disparam o workflow. Comentários de bots não reiniciam IA.
 
-O contrato JSON exige `requestId`, `outcome`, `publicText` e `evidence` (lista
-não vazia de caminhos/evidências). `answer` é reservado a dúvida de uso
-comprovada no produto e código; `clarification` pede informação essencial;
-`code` segue para os especialistas e atribuição existentes. O coordenador
-confirma a classificação e preserva o texto do N1. Divergência, JSON inválido,
-timeout ou erro de autenticação deixam a issue aberta, sem solicitar PR.
-Consulte o log do workflow e reexecute manualmente após corrigir o bloqueio.
+Atribuir ao coding agent cria uma PR; por isso essa atribuição só acontece
+após o coordenador confirmar necessidade de desenvolvimento (`code`). Antes
+disso, N1 acolhe e propõe orientação; coordenador confere com ferramentas
+somente de leitura. `answer` resolve dúvidas e regras comprovadas sem mudar
+produto. `clarification` pede informação essencial e mantém aberto. Dúvida
+comercial ou incerteza não implica desenvolvimento. O coordenador pode retornar
+`consult_po`: o controlador consulta realmente PO, pede ao N1 o texto e volta
+ao coordenador para decisão final, ainda sem PR. Só `code` segue o fluxo completo
+de PO, banco quando necessário, desenvolvimento e revisão.
 
-Em `answer`, o workflow publica a orientação legível e o bloco de progresso
-na própria issue e somente depois encerra como concluída. A resposta é importada
-pelo chat usando o mesmo contrato e ID `resposta-final`. Não grava resultado
-no repositório, não faz commit, não exige revisão de código/build/merge.
-No mesmo comentário, publica o conhecimento do atendimento: fonte/requestId,
-orientação conferida, evidências e limites. Esse registro é parte da resolução,
-não gera issue/PR posterior e não é importado no texto público do ticket.
-A incorporação em docs/Knowledge pode ocorrer no próximo trabalho pertinente. Em
-`clarification`, publica a pergunta, mantém aberto e analisa a resposta humana
-na mesma issue. Comentários de bots não iniciam nova triagem. IDs estáveis e
-uma fila única evitam duplicação; agendamento e execução manual retomam apenas
-o fechamento caso a publicação já tenha ocorrido. O agendamento não repete
-chamadas de IA de casos bloqueados. Issues já atribuídas seguem o fluxo antigo.
+O contrato final exige `requestId`, `outcome`, `publicText` e `evidence` não
+vazio; `consult_po` é interno e nunca atribui código diretamente. O texto público
+é sempre do N1. A leitura do CLI aceita texto introdutório ou cercas ao redor
+de um único objeto JSON completo, valida identidade e campos e recusa múltiplos
+objetos/resultados ambíguos. Saída inválida provoca uma nova chamada ao mesmo
+agente com pedido de reformatação; persistência, timeout, autenticação ou
+divergência bloqueiam a tentativa, sem transformar a falha em pedido de código.
+
+Em `answer`, o controlador publica orientação e conhecimento estruturado com
+fontes, requestId e limites na issue, depois fecha. O chat importa só o texto
+público. Não há commit, build ou PR para resolver uma dúvida. `clarification`
+aguarda resposta humana sem repetir IA a cada agendamento. Edição do pedido ou
+nova mensagem humana permite reanálise. O acolhimento permanece único.
+
+O agendamento percorre issues abertas e retoma triagens sem atribuição, inclusive
+aquelas que falharam antes da resposta. Uma falha não impede analisar a próxima
+issue. Bloqueios são registrados na própria issue, sem stdout/stderr ou segredos.
+Há até três tentativas automáticas por revisão do pedido/histórico humano, com
+intervalos mínimos de 5 e 15 minutos após as primeiras falhas. Ao atingir o
+limite, o aviso pede corrigir o bloqueio e reexecutar manualmente Native agents
+com `issue_number`; uma nova mensagem/edição também habilita nova triagem.
+O cron do GitHub pode atrasar; não há garantia de resposta em segundos.
+Falha de publicação deixa o workflow vermelho; sem acesso de escrita também
+não é possível registrar o bloqueio na issue. Resposta já publicada retoma só
+o fechamento, sem nova IA. Issues já atribuídas conservam o fluxo de PR existente.
+`AGENT_DRY_RUN=true` continua sem rede ou invocação de agentes.
 
 No Actions, `COPILOT_CLI_TOKEN` é opcional: quando ausente, o workflow
 reutiliza o secret existente `COPILOT_AGENT_TOKEN`. Ele precisa ser aceito pelo

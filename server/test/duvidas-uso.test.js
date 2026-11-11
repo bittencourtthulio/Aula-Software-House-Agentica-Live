@@ -4,7 +4,7 @@ import { mkdtempSync, writeFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { executar } from "../../automacao/controlador.mjs";
-import { acolherAtendimento, analisarAtendimento } from "../../automacao/atendimento.mjs";
+import { acolherAtendimento, analisarAtendimento, lerRespostaAgente, requestIdDaIssue } from "../../automacao/atendimento.mjs";
 import { lerProgresso } from "../../automacao/progresso.mjs";
 import { criarSincronizador } from "../src/progresso-tickets.js";
 import { abrirBanco } from "../src/db.js";
@@ -44,7 +44,7 @@ async function cenario(fn) {
   };
   const rodar = async (evento = { issue }, r = resultado) => {
     const path = join(pasta, "evento.json"); writeFileSync(path, JSON.stringify(evento));
-    await executar({ ...env, GITHUB_EVENT_PATH: path }, rede, async () => { assert.ok(comentarios.some(c => c.body.includes('id=recebimento'))); analises++; return r; }, async () => acolhimento);
+    await executar({ ...env, GITHUB_EVENT_PATH: path }, rede, async contexto => { assert.ok(comentarios.some(c => c.body.includes('id=recebimento'))); analises++; if (r instanceof Error) throw r; return { ...r, requestId: contexto.requestId }; }, async contexto => ({ ...acolhimento, requestId: contexto.requestId }));
   };
   try { await fn({ issue, comentarios, chamadas, rodar, env, get analises() { return analises; },
     falharPost(v) { falhaPost = v; }, falharPatch(v) { falhaPatch = v; } }); }
@@ -87,13 +87,13 @@ test("falha de publicação não fecha; falha de fechamento retoma por agendamen
     assert.ok(!c.chamadas.some(c => c.path.endsWith("/assignees")));
     assert.equal(c.chamadas.filter((c) => c.method === "PATCH").length, 0);
     c.falharPost(false); c.falharPatch(true);
-    await assert.rejects(c.rodar, /503/);
-    assert.equal(c.comentarios.length, 2);
+    await assert.rejects(c.rodar, /Triagem da issue/);
+    assert.equal(c.comentarios.length, 3);
     const analises = c.analises;
     c.falharPatch(false);
     await c.rodar({ schedule: "*/5 * * * *" });
     assert.equal(c.issue.state, "closed");
-    assert.equal(c.analises, analises); assert.equal(c.comentarios.length, 2);
+    assert.equal(c.analises, analises); assert.equal(c.comentarios.length, 3);
   });
 });
 
@@ -113,7 +113,7 @@ test("esclarecimento mantém aberto, bots não repetem pergunta e resposta human
 
 test("pedido de código segue para coordenador; triagem inválida, dry-run e issue fechada não atribuem", async () => {
   await cenario(async (c) => {
-    await assert.rejects(() => c.rodar(undefined, { ...resultado, evidence: [] }), /Triagem inválida/);
+    await assert.rejects(() => c.rodar(undefined, { ...resultado, evidence: [] }), /Triagem da issue/);
     assert.equal(c.issue.state, "open");
     assert.ok(!c.chamadas.some((c) => c.path.endsWith("/assignees")));
     c.env.AGENT_DRY_RUN = "true";
@@ -187,4 +187,168 @@ test("N1 redige acolhimento curto sem análise técnica; texto vazio bloqueia", 
   };
   assert.equal((await acolherAtendimento(contexto, { COPILOT_CLI_TOKEN: "teste" }, cli)).publicText, acolhimento.publicText);
   await assert.rejects(() => acolherAtendimento(contexto, { COPILOT_CLI_TOKEN: "teste" }, async () => ({ stdout: JSON.stringify({ ...acolhimento, publicText: "" }) })), /Acolhimento inválido/);
+});
+
+
+test("saída com introdução/cercas é aceita; ambiguidade, identidade falsa e JSON parcial são recusados", () => {
+  const json = JSON.stringify({ ...resultado, publicText: 'Use "Criar quadro" e {etapas}.' });
+  assert.equal(lerRespostaAgente(`Vou conferir os arquivos.\n\x60\x60\x60json\n${json}\n\x60\x60\x60`, requestId).publicText,
+    'Use "Criar quadro" e {etapas}.');
+  for (const texto of [json + json, json.slice(0, -1), JSON.stringify({ ...resultado, requestId: "outro" }),
+    JSON.stringify({ ...resultado, evidence: [] }), JSON.stringify({ resultado }), "Vou conferir", json + "\n{}"])
+    assert.equal(lerRespostaAgente(texto, requestId), null);
+});
+
+test("saída sem contrato é refeita uma vez pelo agente sem encaminhar ao desenvolvimento", async () => {
+  let chamadas = 0;
+  const r = await analisarAtendimento({ requestId, issue: {}, comentarios: [] }, { COPILOT_CLI_TOKEN: "teste" }, async (_, args) => {
+    chamadas++;
+    if (chamadas === 1) return { stdout: "Vou conferir o código." };
+    if (chamadas === 2) assert.match(args[3], /resposta anterior não cumpriu/);
+    return { stdout: `Verifying files...\n${JSON.stringify(resultado)}` };
+  });
+  assert.equal(chamadas, 3);
+  assert.equal(r.outcome, "answer");
+});
+
+test("coordenador consulta PO e N1 redige solução rápida, sem precisar de code", async () => {
+  const agentes = [];
+  const respostas = [
+    { ...resultado, outcome: "clarification", publicText: "Preciso conferir essa regra." },
+    { ...resultado, outcome: "consult_po", publicText: "PO: confirme o comportamento existente." },
+    { ...resultado, publicText: "Parecer interno: recurso existente confirmado." },
+    resultado, resultado,
+  ];
+  const r = await analisarAtendimento({ requestId, issue: {}, comentarios: [] }, { COPILOT_CLI_TOKEN: "teste" }, async (_, args) => {
+    agentes.push(args[1]);
+    return { stdout: JSON.stringify(respostas.shift()) };
+  });
+  assert.deepEqual(agentes, ["n1", "coordenador", "po", "n1", "coordenador"]);
+  assert.equal(r.outcome, "answer");
+  assert.equal(r.publicText, resultado.publicText);
+});
+
+test("a decisão de desenvolvimento pertence ao coordenador, mesmo com proposta inicial do N1", async () => {
+  let n = 0;
+  const r = await analisarAtendimento({ requestId, issue: {}, comentarios: [] }, { COPILOT_CLI_TOKEN: "teste" }, async () => ({
+    stdout: JSON.stringify(n++ ? { ...resultado, outcome: "code", publicText: "É preciso implementar o recurso ausente." } : resultado),
+  }));
+  assert.equal(r.outcome, "code");
+});
+
+test("issue manual sem label ou requestId é resolvida e deduplicada com identidade estável", async () => {
+  await cenario(async c => {
+    c.issue.labels = []; c.issue.body = "Como criar um quadro?";
+    const esperado = requestIdDaIssue(c.issue, c.env.GITHUB_REPOSITORY);
+    await c.rodar();
+    assert.equal(c.issue.state, "closed");
+    assert.ok(c.comentarios[1].body.includes(esperado));
+    assert.ok(!c.chamadas.some(c => c.path.endsWith("/assignees")));
+    await c.rodar(); assert.equal(c.analises, 1);
+  });
+});
+
+test("agendamento atende issue ainda não analisada; esclarecimento aguarda cliente sem repetir IA", async () => {
+  await cenario(async c => {
+    c.issue.labels = [];
+    await c.rodar({ schedule: "cron" }, { ...resultado, outcome: "clarification", publicText: "Em qual tela?" });
+    await c.rodar({ schedule: "cron" });
+    assert.equal(c.analises, 1);
+    assert.equal(c.issue.state, "open");
+    c.comentarios.push({ id: 300, user: { type: "User" }, body: "Na tela de quadros" });
+    await c.rodar({ schedule: "cron" });
+    assert.equal(c.analises, 2);
+    assert.equal(c.issue.state, "closed");
+  });
+});
+
+test("falhas registram bloqueio, respeitam intervalo/limite e podem retomar manualmente", async () => {
+  await cenario(async c => {
+    const falha = new Error("segredo: não publicar stderr do CLI");
+    await assert.rejects(() => c.rodar(undefined, falha), /Triagem da issue/);
+    assert.equal(c.issue.state, "open");
+    assert.ok(!c.comentarios.some(c => c.body.includes("segredo:")));
+    let aviso = c.comentarios.at(-1);
+    aviso.created_at = new Date().toISOString();
+    await c.rodar({ schedule: "cron" }, falha);
+    assert.equal(c.analises, 1);
+    for (let tentativa = 2; tentativa <= 3; tentativa++) {
+      aviso.created_at = "2026-01-01T00:00:00Z";
+      await assert.rejects(() => c.rodar({ schedule: "cron" }, falha), /Triagem bloqueada/);
+      aviso = c.comentarios.at(-1);
+    }
+    assert.match(aviso.body, /Limite de três/);
+    await c.rodar({ schedule: "cron" });
+    assert.equal(c.analises, 3);
+    await c.rodar({ inputs: { issue_number: "9" } });
+    assert.equal(c.analises, 4);
+    assert.equal(c.issue.state, "closed");
+  });
+});
+
+test("tarefas antigas de curadoria e PRs não acionam triagem", async () => {
+  await cenario(async c => {
+    for (const extra of [{ labels: [{ name: "knowledge:task" }] }, { labels: [], title: "[Knowledge] Curar PR" },
+      { labels: [], title: "Normal", body: "<!-- knowledge:task -->" }, { body: "Pedido", pull_request: {} }]) {
+      Object.assign(c.issue, extra);
+      await c.rodar();
+    }
+    assert.equal(c.analises, 0);
+    assert.equal(c.comentarios.length, 0);
+  });
+});
+
+test("nova mensagem e edição não reutilizam resposta final de um pedido anterior", async () => {
+  await cenario(async c => {
+    await c.rodar();
+    c.issue.state = "open";
+    c.comentarios.push({ id: 301, user: { type: "User" }, body: "E como adiciono tarefas?" });
+    const nova = { ...resultado, publicText: "Dentro da lista, use Adicionar cartão." };
+    await c.rodar(undefined, nova);
+    assert.equal(c.analises, 2);
+    assert.equal(c.issue.state, "closed");
+    assert.ok(c.comentarios.at(-1).body.includes(nova.publicText));
+    await c.rodar();
+    assert.equal(c.analises, 2);
+  });
+});
+
+test("falha de uma issue no lote não impede responder a próxima", async () => {
+  const pasta = mkdtempSync(join(tmpdir(), "fluxo-lote-"));
+  try {
+    const pathEvento = join(pasta, "evento.json");
+    writeFileSync(pathEvento, JSON.stringify({ schedule: "cron" }));
+    const issues = [1, 2].map(number => ({ number, title: "Dúvida", body: "Como usar?", labels: [], state: "open" }));
+    const comentarios = new Map([[1, []], [2, []]]);
+    const env = { GITHUB_REPOSITORY: "teste/fluxo", GITHUB_TOKEN: "teste", AGENT_DRY_RUN: "false", GITHUB_EVENT_PATH: pathEvento };
+    const rede = async (url, op) => {
+      const path = new URL(url).pathname.replace("/repos/teste/fluxo", "");
+      let dados;
+      if (path === "/pulls") dados = [];
+      else if (path === "/issues") dados = issues;
+      else {
+        const [, n, recurso] = path.match(/^\/issues\/(\d+)(?:\/(comments))?$/) ?? [];
+        const numero = Number(n);
+        assert.ok(numero === 1 || numero === 2, path);
+        if (recurso) {
+          if (op.method === "POST") {
+            dados = { user: bot, body: JSON.parse(op.body).body, created_at: new Date().toISOString() };
+            comentarios.get(numero).push(dados);
+          } else dados = [...comentarios.get(numero)];
+        } else {
+          dados = issues[numero - 1];
+          if (op.method === "PATCH") Object.assign(dados, JSON.parse(op.body));
+        }
+      }
+      return { ok: true, status: 200, json: async () => dados };
+    };
+    await assert.rejects(() => executar(env, rede, async contexto => {
+      if (contexto.issue.number === 1) throw new Error("timeout");
+      return { ...resultado, requestId: contexto.requestId };
+    }, async contexto => ({ ...acolhimento, requestId: contexto.requestId })), /issues: 1/);
+    assert.equal(issues[0].state, "open");
+    assert.equal(issues[1].state, "closed");
+    assert.match(comentarios.get(1).at(-1).body, /native-agents:retry/);
+    assert.ok(comentarios.get(2).at(-1).body.includes(resultado.publicText));
+  } finally { rmSync(pasta, { recursive: true, force: true }); }
 });
