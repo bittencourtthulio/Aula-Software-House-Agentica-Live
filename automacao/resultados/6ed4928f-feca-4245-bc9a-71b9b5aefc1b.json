@@ -68,10 +68,22 @@
       "publicText": "A revisão estática não identificou problemas no código. O contador ao lado do título foi implementado com agregação, estados para zero, singular e plural, e ajuste responsivo. Foram adicionados testes focados, mas eles não foram executados. A validação final segue pendente: não foi possível confirmar a revisão de origem do artigo da PR, e não houve execução de testes ou build."
     },
     {
+      "id": "resultado-json-criado",
+      "agent": "coordenador",
+      "internalText": "Gravado automacao/resultados/6ed4928f-feca-4245-bc9a-71b9b5aefc1b.json com requestId, outcome code, agentes realmente invocados, allowedFiles, critérios e todos os marcos. O artigo pr-70 mantém source_revision null devido à impossibilidade de obter o corpo exato da fonte pública (HTTP 403); testes/build não foram executados. Revisão final do relatório e escopo pendente.",
+      "publicText": ""
+    },
+    {
       "id": "revisao-final-impedimentos",
       "agent": "n1",
       "internalText": "N1 redigiu atualização pública após a revisão final: revisão estática sem defeito aparente; relatório JSON criado; testes/build não executados; metadados da PR e evidências externas de progresso/agentes não confirmados devido ao bloqueio público. Não há aprovação formal.",
       "publicText": "A revisão estática final não identificou defeitos no código, e o relatório JSON já existe. Testes e build não foram executados. O bloqueio de acesso aos metadados públicos impediu verificar de forma independente a revisão-fonte do artigo e as evidências exatas de progresso e agentes. Isso não representa aprovação formal nem conclusão."
+    },
+    {
+      "id": "revisao-relatorio-json",
+      "agent": "revisor",
+      "internalText": "O revisor validou o JSON, mas observou que o arquivo tinha cinco updates enquanto o bloco de progresso já continha seis. Vou sincronizar o marco `resultado-json-criado` e registrar esta revisão, sem alterar marcos publicados.",
+      "publicText": ""
     }
   ]
 }
