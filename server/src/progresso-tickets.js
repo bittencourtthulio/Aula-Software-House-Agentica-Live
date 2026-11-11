@@ -5,13 +5,13 @@ import { transacao } from "./db.js";
 // Pull autenticado: funciona inclusive quando o app roda só no computador do usuário.
 export function criarSincronizador(db, env = process.env, rede = fetch) {
   const consultas = new Map();
-  return async (ticket) => {
+  return async (ticket, { forcar = false } = {}) => {
     if (env.AGENT_RUNTIME !== "github-native" || env.AGENT_DRY_RUN !== "false" ||
         !ticket.issue_number || !env.GITHUB_TOKEN ||
         !/^[\w.-]+\/[\w.-]+$/.test(env.GITHUB_REPOSITORY ?? "")) return;
     const anterior = consultas.get(ticket.id);
     if (anterior?.pendente) return anterior.pendente;
-    if (anterior && Date.now() - anterior.em < 10000) return;
+    if (!forcar && anterior && Date.now() - anterior.em < 5000) return anterior.erro;
     const estado = { em: Date.now(), pendente: null };
     consultas.set(ticket.id, estado);
     // Cache curto e limitado; a deduplicação durável está no SQLite.
@@ -48,6 +48,8 @@ export function criarSincronizador(db, env = process.env, rede = fetch) {
       } catch {
         // Uma indisponibilidade remota não impede ler/enviar mensagens locais.
         console.error("[tickets] Não foi possível sincronizar progresso; nova tentativa na próxima consulta.");
+        estado.erro = "Não foi possível consultar a issue no GitHub. O histórico foi mantido; tentaremos novamente automaticamente.";
+        return estado.erro;
       } finally { estado.pendente = null; }
     })();
     return estado.pendente;
