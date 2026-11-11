@@ -98,3 +98,4 @@ Resultados de teste citados nos artigos são históricos, não reexecuções des
 | [pr-14](pr-14.md) | Primeira execução da curadoria antes da integração em main | conhecimento, workflow |
 | [pr-71](pr-71.md) | N1 confirma recebimento antes da análise e atribuição ao Copilot | N1, atendimento, acolhimento |
 | [issue-72](issue-72.md) | Triagem de dúvida bloqueada por saída do CLI e encaminhamento antes de PR | triagem, N1, PO, JSON |
+| [pr-73](pr-73.md) | Triagem de toda issue, consulta rápida ao PO e retomada antes de PR | triagem, N1, PO, retomada |

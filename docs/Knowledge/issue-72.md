@@ -10,7 +10,7 @@ source_closed_at: null
 updated_at: "2026-11-11"
 tags: ["triagem", "n1", "coordenador", "po", "json", "quadros"]
 paths: ["automacao/atendimento.mjs", "automacao/controlador.mjs", ".github/workflows/native-agents.yml", "server/test/duvidas-uso.test.js"]
-related: ["issue-9", "pr-10", "pr-12"]
+related: ["pr-73", "issue-9", "pr-10", "pr-12"]
 ---
 
 # Dúvida simples parada por resposta fora do contrato de triagem
@@ -43,7 +43,7 @@ e [43065266423](https://github.com/bittencourtthulio/Aula-Software-House-Agentic
 A orientação funcional foi conferida em PRODUTO.md, BarraLateral.jsx,
 TelaQuadro.jsx e Lista.jsx. Testes locais cobrem resolução sem PR, PO, código,
 retorno do CLI, identidade de issue manual, retomada, deduplicação e bloqueios.
-O artigo da PR registra o resultado final dos checks desta proposta.
+O artigo pr-73 registra o resultado final dos checks desta proposta.
 
 ## Limites e prevenção
 Snapshot consultado: 11/11/2026, issue aberta. Código proposto não comprova
